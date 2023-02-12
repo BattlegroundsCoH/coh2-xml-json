@@ -2,6 +2,9 @@ name: .NET Core
 
 on: [push]
 
+permissions:
+  contents: write
+
 jobs:
   build:
 
