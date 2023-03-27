@@ -6,19 +6,19 @@ using System.Linq;
 using System.Xml;
 using CoH2XML2JSON.Blueprint.DataEntry;
 
-namespace CoH2XML2JSON.Blueprint;
+namespace CoH2XML2JSON.Blueprints;
 
-public class SBP : BP {
+public class SquadBlueprint : IBlueprint {
 
     public record Loadout(string EBP, int Count);
 
     public record VeterancyLevel(string ScreenName, float Experience);
 
-    public override string ModGUID { get; }
+    public string ModGUID { get; }
 
-    public override ulong PBGID { get; }
+    public ulong PBGID { get; }
 
-    public override string Name { get; }
+    public string Name { get; }
 
     public string Army { get; init; }
 
@@ -55,7 +55,7 @@ public class SBP : BP {
     [DefaultValue(null)]
     public string[] AppliedUpgrades { get; }
 
-    public SBP(XmlDocument xmlDocument, string guid, string name, List<EBP> entities) {
+    public SquadBlueprint(XmlDocument xmlDocument, string guid, string name, List<EntityBlueprint> entities) {
 
         // Set the name
         Name = name;
@@ -86,11 +86,11 @@ public class SBP : BP {
             var nodes = squadLoadout.SelectNodes("//group[@name='loadout_data']");
             List<Cost> costList = new();
             List<Loadout> squadLoadoutData = new();
-            List<EBP> tmpEbpCollect = new();
+            List<EntityBlueprint> tmpEbpCollect = new();
             foreach (XmlElement loadout_data in nodes) {
                 int num = int.Parse(loadout_data.FindSubnode("float", "num").GetAttribute("value"));
                 string entity = loadout_data.FindSubnode("instance_reference", "type").GetAttribute("value");
-                EBP ebp = entities.FirstOrDefault(x => entity.EndsWith(x.Name));
+                EntityBlueprint ebp = entities.FirstOrDefault(x => entity.EndsWith(x.Name));
                 tmpEbpCollect.Add(ebp);
                 Cost[] dups = new Cost[num];
                 Array.Fill(dups, ebp?.Cost ?? new Cost(0, 0, 0, 0));

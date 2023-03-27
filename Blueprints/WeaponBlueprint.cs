@@ -5,11 +5,10 @@ using System.Xml;
 using CoH2XML2JSON.Blueprint.DataEntry;
 using CoH2XML2JSON.Converter;
 
-namespace CoH2XML2JSON.Blueprint;
+namespace CoH2XML2JSON.Blueprints;
 
 [JsonConverter(typeof(StringEnumConverter))]
-public enum WeaponCategory
-{
+public enum WeaponCategory {
     undefined,
     ballistic,
     explosive,
@@ -18,8 +17,7 @@ public enum WeaponCategory
 }
 
 [JsonConverter(typeof(StringEnumConverter))]
-public enum WeaponSmallArmsType
-{
+public enum WeaponSmallArmsType {
     invalid,
     heavymachinegun,
     lightmachinegun,
@@ -29,8 +27,7 @@ public enum WeaponSmallArmsType
 }
 
 [JsonConverter(typeof(StringEnumConverter))]
-public enum WeaponBalisticType
-{
+public enum WeaponBalisticType {
     invalid,
     antitankgun,
     tankgun,
@@ -38,8 +35,7 @@ public enum WeaponBalisticType
 }
 
 [JsonConverter(typeof(StringEnumConverter))]
-public enum WeaponExplosiveType
-{
+public enum WeaponExplosiveType {
     invalid,
     grenade,
     artillery,
@@ -47,13 +43,13 @@ public enum WeaponExplosiveType
     mortar
 }
 
-public class WBP : BP {
+public class WeaponBlueprint : IBlueprint {
 
-    public override string ModGUID { get; }
+    public string ModGUID { get; }
 
-    public override ulong PBGID { get; }
+    public ulong PBGID { get; }
 
-    public override string Name { get; }
+    public string Name { get; }
 
     public UI Display { get; }
 
@@ -77,7 +73,7 @@ public class WBP : BP {
 
     public string CallbackType { get; }
 
-    public WBP(XmlDocument xmlDocument, string guid, string name, string filepath) {
+    public WeaponBlueprint(XmlDocument xmlDocument, string guid, string name, string filepath) {
 
         // Set the name
         Name = name;

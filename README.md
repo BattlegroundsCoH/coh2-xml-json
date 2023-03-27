@@ -23,3 +23,7 @@ Alternatively, run the executable that was compiled.
 ## Run
 
 The tool is very simple and will prompt the user for basic information of what to do.
+
+If the file `last.json` exists and the application is started with the '-do_last' parameter, the application will automatically run using the settings specified in `last.json` without any user prompt.
+
+The application can be set to target `Company of Heroes 3` by adding the `-coh3` parameter flag.

@@ -3,9 +3,9 @@ using System.IO;
 using System.Xml;
 using CoH2XML2JSON.Blueprint.DataEntry;
 
-namespace CoH2XML2JSON.Blueprint;
+namespace CoH2XML2JSON.Blueprints;
 
-public class SlotItem : BP {
+public class SlotItemBlueprint : IBlueprint {
 
     public override string ModGUID { get; }
 
@@ -23,7 +23,7 @@ public class SlotItem : BP {
     [DefaultValue(0)]
     public int SlotSize { get; }
 
-    public SlotItem(XmlDocument xmlDocument, string guid, string name) {
+    public SlotItemBlueprint(XmlDocument xmlDocument, string guid, string name) {
 
         // Set the name
         Name = name;

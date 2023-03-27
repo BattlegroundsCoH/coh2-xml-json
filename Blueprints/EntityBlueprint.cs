@@ -3,10 +3,11 @@ using System.ComponentModel;
 using System.IO;
 using System.Xml;
 using CoH2XML2JSON.Blueprint.DataEntry;
+using CoH2XML2JSON.Blueprints.Constraints;
 
-namespace CoH2XML2JSON.Blueprint;
+namespace CoH2XML2JSON.Blueprints;
 
-public class EBP : BP {
+public class EntityBlueprint : IBlueprint, IBlueprintOfArmy {
 
     public readonly struct EBPCrew {
         public string Army { get; }
@@ -19,13 +20,13 @@ public class EBP : BP {
         }
     }
 
-    public override string ModGUID { get; }
+    public string ModGUID { get; }
 
-    public override ulong PBGID { get; }
+    public ulong PBGID { get; }
 
-    public override string Name { get; }
+    public string Name { get; }
 
-    public string Army { get; init; }
+    public string Army { get; set; }
 
     [DefaultValue(null)]
     public UI Display { get; }
@@ -56,7 +57,7 @@ public class EBP : BP {
     [DefaultValue(0)]
     public int UpgradeCapacity { get; }
 
-    public EBP(XmlDocument xmlDocument, string guid, string name) {
+    public EntityBlueprint(XmlDocument xmlDocument, string guid, string name) {
 
         // Set the name
         Name = name;

@@ -5,11 +5,12 @@ using System.Collections.Generic;
 using System.Text.Json;
 using System.Globalization;
 using System.Linq;
-using CoH2XML2JSON.Blueprint;
+using CoH2XML2JSON.Blueprints;
+using CoH2XML2JSON.Strategy;
 
 namespace CoH2XML2JSON;
 
-public delegate T BlueprintFactory<T>(XmlDocument document, string path, string name) where T : BP;
+public delegate T BlueprintFactory<T>(XmlDocument document, string path, string name) where T : IBlueprint;
 
 public class Program {
 
@@ -18,7 +19,7 @@ public class Program {
 
     public static float GetFloat(string value) => float.Parse(value, FormatCulture);
 
-    static readonly JsonSerializerOptions serializerOptions = new() { 
+    public static readonly JsonSerializerOptions SerializerOptions = new() { 
         WriteIndented = true, 
         IgnoreReadOnlyFields = false,
         IgnoreReadOnlyProperties = false,
@@ -30,7 +31,7 @@ public class Program {
     static string modguid;
     static string modname;
     static Dictionary<string, string> slotItemSymbols = new Dictionary<string, string>();
-    static List<EBP> entities = new();
+    static List<EntityBlueprint> entities = new();
 
     public static readonly string[] racebps = new string[] {
         "racebps\\soviet",
@@ -62,7 +63,7 @@ public class Program {
         return army;
     }
 
-    private static List<T> GenericDatabaseGet<T>(string dbname, string lookpath, BlueprintFactory<T> instanceCreator) where T : BP {
+    private static List<T> GenericDatabaseGet<T>(string dbname, string lookpath, BlueprintFactory<T> instanceCreator) where T : Blueprint.IBlueprint {
 
         // Get destination
         string fileName = Path.Combine(dirPath, dbname);
@@ -117,7 +118,7 @@ public class Program {
 
     }
 
-    public static void GenericDatabaseSave<T>(string dbname, IEnumerable<T> data) where T : BP {
+    public static void GenericDatabaseSave<T>(string dbname, IEnumerable<T> data) where T : Blueprint.IBlueprint {
 
         // Get destination
         string fileName = Path.Combine(dirPath, dbname);
@@ -129,7 +130,7 @@ public class Program {
 
     }
 
-    public static void GenericDatabase<T>(string dbname, string lookpath, BlueprintFactory<T> instanceCreator) where T : BP {
+    public static void GenericDatabase<T>(string dbname, string lookpath, BlueprintFactory<T> instanceCreator) where T : Blueprint.IBlueprint {
 
         // Get
         var bps = GenericDatabaseGet<T>(dbname, lookpath, instanceCreator);
@@ -139,26 +140,20 @@ public class Program {
 
     }
 
-    public static void GenericDatabase<T>(string dbname, BlueprintFactory<T> instanceCreator, params string[] paths) where T : BP {
+    public static void GenericDatabase<T>(string dbname, BlueprintFactory<T> instanceCreator, params string[] paths) where T : Blueprint.IBlueprint {
         GenericDatabaseSave(dbname, paths.Aggregate((IEnumerable<T>)(new List<T>()), (a, b) => a.Concat(GenericDatabaseGet<T>(dbname, b, instanceCreator))));
-    }
-
-    public class LastUse {
-        public string OutPath { get; set; } 
-        public string InstancePath { get; set; }
-        public string ModGuid { get; set; }
-        public string ModName { get; set; }
     }
 
     public static void Main(string[] args) {
 
-        bool doLastIgnoreInput = args.Length == 1 && args[0] == "-do_last";
+        bool doLastIgnoreInput = args.Contains("-do_last");
+        bool isCoH3 = args.Contains("-coh3");
 
         Console.WriteLine(string.Join(" ", args));
 
-        LastUse last = null;
+        Goal last = null;
         if (File.Exists("last.json")) {
-            last = JsonSerializer.Deserialize<LastUse>(File.ReadAllText("last.json"));
+            last = JsonSerializer.Deserialize<Goal>(File.ReadAllText("last.json"));
             Console.WriteLine("Use settings from last execution?");
             Console.WriteLine("Output Directory: " + last.OutPath);
             Console.WriteLine("Instance Directory: " + last.InstancePath);
@@ -192,7 +187,7 @@ public class Program {
                     dirPath = Environment.CurrentDirectory;
                     break;
                 }
-                Console.WriteLine("Invalid path! Try again: ");
+                Console.Write("Invalid path! Try again: ");
                 dirPath = Console.ReadLine();
             }
 
@@ -200,7 +195,7 @@ public class Program {
             instancesPath = Console.ReadLine();
 
             while (!Directory.Exists(instancesPath) && !instancesPath.EndsWith(@"\instances")) {
-                Console.WriteLine("Invalid path! Try again: ");
+                Console.Write("Invalid path! Try again: ");
                 instancesPath = Console.ReadLine();
             }
 
@@ -218,20 +213,23 @@ public class Program {
 
         }
 
-        LastUse lu = new() { InstancePath = instancesPath, ModGuid = modguid, OutPath = dirPath, ModName = modname };
-        File.WriteAllText("last.json", JsonSerializer.Serialize(lu));
+        Goal goal = new() { InstancePath = instancesPath, ModGuid = modguid, OutPath = dirPath, ModName = modname };
+        File.WriteAllText("last.json", JsonSerializer.Serialize(goal));
 
-        GenericDatabase($"{modname}-abp-db.json", "abilities", (doc, path, name) => new ABP(doc, modguid, name) { Army = GetFactionFromPath(path) });
+        IGameStrategy strategy = isCoH3 ? new CoH3Strategy() : new CoH2Strategy();
+        strategy.Execute(goal);
+
+        GenericDatabase($"{modname}-abp-db.json", "abilities", (doc, path, name) => new AbilityBlueprint(doc, modguid, name) { Army = GetFactionFromPath(path) });
         GenericDatabase($"{modname}-ebp-db.json", (doc, path, name) => {
-            var ebp = new EBP(doc, modguid, name) { Army = GetFactionFromPath(path) };
+            var ebp = new EntityBlueprint(doc, modguid, name) { Army = GetFactionFromPath(path) };
             entities.Add(ebp);
             return ebp;
         }, "ebps\\races", "ebps\\gameplay");
-        GenericDatabase($"{modname}-sbp-db.json", "sbps\\races", (doc, path, name) => new SBP(doc, modguid, name, entities) { Army = GetFactionFromPath(path) });
-        GenericDatabase($"{modname}-cbp-db.json", "critical", (doc, path, name) => new Critical(doc, modguid, name));
-        GenericDatabase($"{modname}-ibp-db.json", "slot_item", (doc, path, name) => new SlotItem(doc, modguid, name) { Army = GetFactionFromPath(path) });
-        GenericDatabase($"{modname}-ubp-db.json", "upgrade", (doc, path, name) => new UBP(doc, modguid, name));
-        GenericDatabase($"{modname}-wbp-db.json", "weapon", (doc, path, name) => new WBP(doc, modguid, name, path));
+        GenericDatabase($"{modname}-sbp-db.json", "sbps\\races", (doc, path, name) => new SquadBlueprint(doc, modguid, name, entities) { Army = GetFactionFromPath(path) });
+        GenericDatabase($"{modname}-cbp-db.json", "critical", (doc, path, name) => new CriticalBlueprint(doc, modguid, name));
+        GenericDatabase($"{modname}-ibp-db.json", "slot_item", (doc, path, name) => new SlotItemBlueprint(doc, modguid, name) { Army = GetFactionFromPath(path) });
+        GenericDatabase($"{modname}-ubp-db.json", "upgrade", (doc, path, name) => new UpgradeBlueprint(doc, modguid, name));
+        GenericDatabase($"{modname}-wbp-db.json", "weapon", (doc, path, name) => new WeaponBlueprint(doc, modguid, name, path));
 
         Console.WriteLine();
 

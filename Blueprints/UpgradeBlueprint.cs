@@ -4,16 +4,15 @@ using System.IO;
 using System.Xml;
 using CoH2XML2JSON.Blueprint.DataEntry;
 
-namespace CoH2XML2JSON.Blueprint;
+namespace CoH2XML2JSON.Blueprints;
 
+public class UpgradeBlueprint : IBlueprint {
 
-public class UBP : BP {
+    public string ModGUID { get; }
 
-    public override string ModGUID { get; }
+    public ulong PBGID { get; }
 
-    public override ulong PBGID { get; }
-
-    public override string Name { get; }
+    public string Name { get; }
 
     public UI Display { get; }
 
@@ -28,7 +27,7 @@ public class UBP : BP {
     [DefaultValue(null)]
     public Requirement[] Requirements { get; }
 
-    public UBP(XmlDocument xmlDocument, string guid, string name) {
+    public UpgradeBlueprint(XmlDocument xmlDocument, string guid, string name) {
 
         // Set the name
         Name = name;
