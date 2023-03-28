@@ -1,13 +1,15 @@
-﻿using System.Xml;
+﻿using System.Collections.Generic;
+using System.Xml;
 
 using CoH2XML2JSON.Blueprint.DataEntry;
 using CoH2XML2JSON.Blueprints;
 
 namespace CoH2XML2JSON.Strategy.CoH2;
 
-public class CoH2AbilityReader : IBlueprintReader<AbilityBlueprint> {
+public sealed class CoH2AbilityReader : IBlueprintReader<AbilityBlueprint> {
     
-    public AbilityBlueprint FromXml(XmlDocument xmlDocument, string modGuid, string filename) {
+    /// <inheritdoc/>
+    public AbilityBlueprint FromXml(XmlDocument xmlDocument, string modGuid, string filename, Helpers helpers) {
 
         // Set the name
         var name = filename;

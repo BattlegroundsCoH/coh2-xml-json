@@ -1,51 +1,54 @@
 ﻿using System.ComponentModel;
-using System.IO;
-using System.Xml;
+
 using CoH2XML2JSON.Blueprint.DataEntry;
+using CoH2XML2JSON.Blueprints.Constraints;
 
 namespace CoH2XML2JSON.Blueprints;
 
-public class SlotItemBlueprint : IBlueprint {
+/// <summary>
+/// Blueprint for a slot item that can be equipped on a unit.
+/// </summary>
+public class SlotItemBlueprint : BaseBlueprint<SlotItemBlueprint>, IBlueprintOfArmy {
 
-    public override string ModGUID { get; }
+    /// <inheritdoc/>
+    public string? ModGUID { get; init; }
 
-    public override ulong PBGID { get; }
+    /// <inheritdoc/>
+    public ulong PBGID { get; init; }
 
-    public override string Name { get; }
+    /// <inheritdoc/>
+    public string Name { get; init; } = string.Empty;
 
-    public string Army { get; init; }
+    /// <inheritdoc/>
+    public string? Army {
+        get => GetValue<string>();
+        set => SetValue(value);
+    }
 
-    public UI Display { get; }
+    /// <summary>
+    /// The user interface elements for this slot item blueprint.
+    /// </summary>
+    public UI? Display {
+        get => GetValue<UI>();
+        set => SetValue(value);
+    }
 
+    /// <summary>
+    /// The weapon blueprint associated with this slot item, if any.
+    /// </summary>
     [DefaultValue(null)]
-    public string WPB { get; }
+    public string? WPB {
+        get => GetValue<string>();
+        set => SetValue(value);
+    }
 
+    /// <summary>
+    /// The size of the slot required to equip this item.
+    /// </summary>
     [DefaultValue(0)]
-    public int SlotSize { get; }
-
-    public SlotItemBlueprint(XmlDocument xmlDocument, string guid, string name) {
-
-        // Set the name
-        Name = name;
-
-        // Set mod GUID
-        ModGUID = string.IsNullOrEmpty(guid) ? null : guid;
-
-        // Load pbgid
-        PBGID = ulong.Parse(xmlDocument["instance"]["uniqueid"].GetAttribute("value"));
-
-        // Load display
-        Display = new(xmlDocument.SelectSingleNode("//group[@name='ui_info']") as XmlElement);
-
-        // Get slot size
-        SlotSize = (int)Program.GetFloat((xmlDocument.SelectSingleNode("//float[@name='slot_size']") as XmlElement)?.GetAttribute("value") ?? "0");
-
-        // Get weapon
-        WPB = Path.GetFileNameWithoutExtension((xmlDocument.SelectSingleNode("//instance_reference[@name='weapon']") as XmlElement).GetAttribute("value"));
-        if (string.IsNullOrEmpty(WPB)) {
-            WPB = null;
-        }
-
+    public int SlotSize {
+        get => GetValue<int>();
+        set => SetValue(value);
     }
 
 }

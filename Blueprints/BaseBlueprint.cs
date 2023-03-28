@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace CoH2XML2JSON.Blueprints;
 
@@ -41,7 +42,7 @@ public abstract class BaseBlueprint<[DynamicallyAccessedMembers(DynamicallyAcces
     /// </summary>
     /// <param name="key">The key of the property to get.</param>
     /// <returns>The value of the property, or null if the property is not defined.</returns>
-    protected object? GetValue(string key)
+    protected object? GetValue([CallerMemberName] string key = "")
         => _impl.TryGetValue(key, out object? obj) ? obj : GetSuperValue(key);
 
     /// <summary>
@@ -50,14 +51,14 @@ public abstract class BaseBlueprint<[DynamicallyAccessedMembers(DynamicallyAcces
     /// </summary>
     /// <param name="key">The key of the property to get.</param>
     /// <returns>The value of the property, or null if the property is not defined.</returns>
-    protected TFieldType? GetValue<TFieldType>(string key)
+    protected TFieldType? GetValue<TFieldType>([CallerMemberName] string key = "")
         => _impl.TryGetValue(key, out object? obj) && obj is TFieldType objval ? objval : GetSuperValue<TFieldType>(key);
 
     /// <summary>
     /// Sets the value of a property with the specified key.
     /// </summary>
-    /// <param name="key">The key of the property to set.</param>
     /// <param name="value">The value to set the property to.</param>
-    protected void SetValue(string key, object? value) => _impl[key] = value;
+    /// <param name="key">The key of the property to set.</param>
+    protected void SetValue(object? value, [CallerMemberName] string key = "") => _impl[key] = value;
 
 }

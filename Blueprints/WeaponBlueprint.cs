@@ -1,7 +1,6 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Text.Json.Serialization;
-using System.Xml;
+
 using CoH2XML2JSON.Blueprint.DataEntry;
 using CoH2XML2JSON.Converter;
 
@@ -43,129 +42,67 @@ public enum WeaponExplosiveType {
     mortar
 }
 
-public class WeaponBlueprint : IBlueprint {
+public sealed class WeaponBlueprint : BaseBlueprint<WeaponBlueprint>, IBlueprint {
 
-    public string ModGUID { get; }
+    /// <inheritdoc/>
+    public string? ModGUID { get; init; }
 
-    public ulong PBGID { get; }
+    /// <inheritdoc/>
+    public ulong PBGID { get; init; }
 
-    public string Name { get; }
+    /// <inheritdoc/>
+    public string Name { get; init; } = string.Empty;
 
-    public UI Display { get; }
-
-    [DefaultValue(0.0f)]
-    public float Range { get; }
-
-    [DefaultValue(0.0f)]
-    public float Damage { get; }
-
-    public int MagazineSize { get; }
-
-    public float FireRate { get; }
-
-    public WeaponCategory Category { get; }
-
-    public WeaponSmallArmsType SmallArmsType { get; }
-
-    public WeaponBalisticType BalisticType { get; }
-
-    public WeaponExplosiveType ExplosiveType { get; }
-
-    public string CallbackType { get; }
-
-    public WeaponBlueprint(XmlDocument xmlDocument, string guid, string name, string filepath) {
-
-        // Set the name
-        Name = name;
-
-        // Set mod GUID
-        ModGUID = string.IsNullOrEmpty(guid) ? null : guid;
-
-        // Load pbgid
-        PBGID = ulong.Parse(xmlDocument["instance"]["uniqueid"].GetAttribute("value"));
-
-        // Get range
-        Range = Program.GetFloat((xmlDocument.SelectSingleNode("//group[@name='range']") as XmlElement).FindSubnode("float", "max")?.GetAttribute("value") ?? "0");
-
-        // Get damage
-        Damage = Program.GetFloat((xmlDocument.FirstChild as XmlElement).FindSubnode("group", "damage").FindSubnode("float", "max")?.GetAttribute("value") ?? "0");
-
-        // Get additional reload data
-        XmlElement reloadData = xmlDocument.SelectSingleNode("//group[@name='reload']") as XmlElement;
-        XmlElement reloadFreqData = reloadData.FindSubnode("group", "frequency");
-        XmlElement burstData = xmlDocument.SelectSingleNode("//group[@name='burst']") as XmlElement;
-        XmlElement burstRateOfFireData = burstData.FindSubnode("group", "rate_of_fire");
-
-        // Get the min number of shots before reloading
-        int reloadAfterShots = (int)float.Parse(reloadFreqData.FindSubnode("float", "min").GetAttribute("value"));
-        if (reloadAfterShots < 1) {
-            reloadAfterShots = 1;
-        }
-
-        // Get if can burst
-        bool canBurst = bool.Parse(burstData.FindSubnode("bool", "can_burst").GetAttribute("value"));
-
-        // Get burst data
-        float burstMin = Program.GetFloat(burstRateOfFireData.FindSubnode("float", "min").GetAttribute("value"));
-        float burstMax = Program.GetFloat(burstRateOfFireData.FindSubnode("float", "max").GetAttribute("value"));
-        float rate_of_fire = (burstMin + burstMax) / 2.0f;
-
-        // Set properties
-        FireRate = canBurst ? rate_of_fire : 1;
-        MagazineSize = canBurst ? (int)(reloadAfterShots * rate_of_fire) : reloadAfterShots;
-
-        // Set types
-        Category = IfContains(filepath, x => x switch {
-            "small_arms" => WeaponCategory.smallarms,
-            "flame_throwers" => WeaponCategory.flame,
-            "explosive_weapons" => WeaponCategory.explosive,
-            "ballistic_weapon" => WeaponCategory.ballistic,
-            _ => WeaponCategory.undefined
-        });
-        SmallArmsType = Category is WeaponCategory.smallarms ? IfContains(filepath, x => x switch {
-            "rifle" => WeaponSmallArmsType.rifle,
-            "pistol" => WeaponSmallArmsType.pistol,
-            "sub_machine_gun" => WeaponSmallArmsType.submachinegun,
-            "light_machine_gun" => WeaponSmallArmsType.lightmachinegun,
-            "heavy_machine_gun" => WeaponSmallArmsType.heavymachinegun,
-            _ => WeaponSmallArmsType.invalid
-        }) : WeaponSmallArmsType.invalid;
-        BalisticType = Category is WeaponCategory.ballistic ? IfContains(filepath, x => x switch {
-            "anti_tank_gun" => WeaponBalisticType.antitankgun,
-            "infantry_anti_tank_weapon" => WeaponBalisticType.infantryatgun,
-            "tank_gun" => WeaponBalisticType.tankgun,
-            _ => WeaponBalisticType.invalid
-        }) : WeaponBalisticType.invalid;
-        ExplosiveType = Category is WeaponCategory.explosive ? IfContains(filepath, x => x switch {
-            "mine" => WeaponExplosiveType.mine,
-            "mortar" => WeaponExplosiveType.mortar,
-            "grenade" => WeaponExplosiveType.grenade,
-            "light_artillery" or "heavy_artillery" => WeaponExplosiveType.artillery,
-            _ => WeaponExplosiveType.invalid
-        }) : WeaponExplosiveType.invalid;
-
-        // Get callback type
-        XmlElement fireData = xmlDocument.SelectSingleNode("//group[@name='fire']") as XmlElement;
-        XmlElement onFireActions = fireData.FindSubnode("list", "on_fire_actions");
-        foreach (XmlElement action in onFireActions) {
-            if (action.Name == "template_reference" && action.GetAttribute("value") == "action\\scar_function_call") {
-                if (action.FindSubnode("string", "function_name") is XmlElement func && func.GetAttribute("value").StartsWith("ScarEvent_")) {
-                    CallbackType = func.GetAttribute("value");
-                }
-            }
-        }
-
+    public UI? Display {
+        get => GetValue<UI>();
+        set => SetValue(value);
     }
 
-    private static T IfContains<T>(string path, Func<string, T> typeMap) where T : Enum {
-        string[] check = path.Split('\\');
-        for (int i = 0; i < check.Length; i++) {
-            T val = typeMap(check[i]);
-            if (val.CompareTo(default(T)) != 0) {
-                return val;
-            }
-        }
-        return typeMap(path);
+    [DefaultValue(0.0f)]
+    public float Range {
+        get => GetValue<float>();
+        set => SetValue(value);
+    }
+
+    [DefaultValue(0.0f)]
+    public float Damage {
+        get => GetValue<float>();
+        set => SetValue(value);
+    }
+
+    public int MagazineSize {
+        get => GetValue<int>();
+        set => SetValue(value);
+    }
+
+    public float FireRate {
+        get => GetValue<float>();
+        set => SetValue(value);
+    }
+
+    public WeaponCategory Category {
+        get => GetValue<WeaponCategory>();
+        set => SetValue(value);
+    }
+
+    public WeaponSmallArmsType SmallArmsType {
+        get => GetValue<WeaponSmallArmsType>();
+        set => SetValue(value);
+    }
+
+    public WeaponBalisticType BalisticType {
+        get => GetValue<WeaponBalisticType>();
+        set => SetValue(value);
+    }
+
+    public WeaponExplosiveType ExplosiveType {
+        get => GetValue<WeaponExplosiveType>();
+        set => SetValue(value);
+    }
+
+    public string? CallbackType {
+        get => GetValue<string>();
+        set => SetValue(value);
     }
 
 }

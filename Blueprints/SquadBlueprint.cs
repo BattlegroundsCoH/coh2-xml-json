@@ -1,171 +1,156 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.IO;
-using System.Linq;
-using System.Xml;
+
 using CoH2XML2JSON.Blueprint.DataEntry;
+using CoH2XML2JSON.Blueprints.Constraints;
 
 namespace CoH2XML2JSON.Blueprints;
 
-public class SquadBlueprint : IBlueprint {
+/// <summary>
+/// Represents a blueprint for a squad.
+/// </summary>
+public sealed class SquadBlueprint : BaseBlueprint<SquadBlueprint>, IBlueprintOfArmy {
 
+    /// <summary>
+    /// Represents a loadout of entities with a specific EBP and count.
+    /// </summary>
     public record Loadout(string EBP, int Count);
 
+    /// <summary>
+    /// Represents a veterancy level with a specific screen name and experience value.
+    /// </summary>
     public record VeterancyLevel(string ScreenName, float Experience);
 
-    public string ModGUID { get; }
+    /// <inheritdoc/>
+    public string? ModGUID { get; init; }
 
-    public ulong PBGID { get; }
+    /// <inheritdoc/>
+    public ulong PBGID { get; init; }
 
-    public string Name { get; }
+    /// <inheritdoc/>
+    public string Name { get; init; } = string.Empty;
 
-    public string Army { get; init; }
+    /// <inheritdoc/>
+    public string? Army {
+        get => GetValue<string>();
+        set => SetValue(value);
+    }
 
-    public UI Display { get; }
+    /// <summary>
+    /// Gets or sets the UI display information for the squad.
+    /// </summary>
+    public UI? Display {
+        get => GetValue<UI>();
+        set => SetValue(value);
+    }
 
-    public Cost SquadCost { get; }
+    /// <summary>
+    /// Gets or sets the squad cost.
+    /// </summary>
+    public Cost? SquadCost {
+        get => GetValue<Cost>();
+        set => SetValue(value);
+    }
 
-    public bool HasCrew { get; }
+    /// <summary>
+    /// Gets or sets a value indicating whether the squad has a crew.
+    /// </summary>
+    public bool HasCrew {
+        get => GetValue<bool>();
+        set => SetValue(value);
+    }
 
-    public bool IsSyncWeapon { get; }
+    /// <summary>
+    /// Gets or sets a value indicating whether the squad has synchronised weapon (Team Weapon).
+    /// </summary>
+    public bool IsSyncWeapon {
+        get => GetValue<bool>();
+        set => SetValue(value);
+    }
 
-    public Loadout[] Entities { get; }
+    /// <summary>
+    /// Gets or sets the entities in the squad, including their EBP and count.
+    /// </summary>
+    public Loadout[]? Entities {
+        get => GetValue<Loadout[]>();
+        set => SetValue(value);
+    }
 
-    public float FemaleChance { get; }
+    /// <summary>
+    /// Gets or sets the female chance for the squad.
+    /// </summary>
+    public float FemaleChance {
+        get => GetValue<float>();
+        set => SetValue(value);
+    }
 
-    public string[] Abilities { get; }
+    /// <summary>
+    /// Gets or sets the abilities of the squad.
+    /// </summary>
+    public string[]? Abilities {
+        get => GetValue<string[]>();
+        set => SetValue(value);
+    }
 
-    public VeterancyLevel[] Veterancy { get; }
+    /// <summary>
+    /// Gets or sets the veterancy levels of the squad.
+    /// </summary>
+    public VeterancyLevel[]? Veterancy {
+        get => GetValue<VeterancyLevel[]>();
+        set => SetValue(value);
+    }
 
-    public string[] Types { get; }
+    /// <summary>
+    /// Gets or sets the types of the squad.
+    /// </summary>
+    public string[] Types {
+        get => GetValue<string[]>() ?? Array.Empty<string>();
+        set => SetValue(value);
+    }
 
+    /// <summary>
+    /// Gets or sets the slot pickup capacity of the squad.
+    /// </summary>
     [DefaultValue(0)]
-    public int SlotPickupCapacity { get; }
+    public int SlotPickupCapacity {
+        get => GetValue<int>();
+        set => SetValue(value);
+    }
 
+    /// <summary>
+    /// Gets or sets a value indicating whether the squad can pick up items.
+    /// </summary>
     [DefaultValue(false)]
-    public bool CanPickupItems { get; }
+    public bool CanPickupItems {
+        get => GetValue<bool>();
+        set => SetValue(value);
+    }
 
+    /// <summary>
+    /// Gets or sets the upgrade capacity of the squad.
+    /// </summary>
     [DefaultValue(0)]
-    public int UpgradeCapacity { get; }
+    public int UpgradeCapacity {
+        get => GetValue<int>();
+        set => SetValue(value);
+    }
 
+    /// <summary>
+    /// Gets or sets the upgrades available for the squad.
+    /// </summary>
     [DefaultValue(null)]
-    public string[] Upgrades { get; }
+    public string[]? Upgrades {
+        get => GetValue<string[]>();
+        set => SetValue(value);
+    }
 
+    /// <summary>
+    /// Gets or sets the upgrades that have been applied to the squad.
+    /// </summary>
     [DefaultValue(null)]
-    public string[] AppliedUpgrades { get; }
-
-    public SquadBlueprint(XmlDocument xmlDocument, string guid, string name, List<EntityBlueprint> entities) {
-
-        // Set the name
-        Name = name;
-
-        // Set mod GUID
-        ModGUID = string.IsNullOrEmpty(guid) ? null : guid;
-
-        // Load pbgid
-        PBGID = ulong.Parse(xmlDocument["instance"]["uniqueid"].GetAttribute("value"));
-
-        // Load display
-        Display = new(xmlDocument.SelectSingleNode(@"//template_reference[@name='squadexts'] [@value='sbpextensions\squad_ui_ext']") as XmlElement);
-
-        // Load squad types
-        if (xmlDocument.SelectSingleNode(@"//template_reference[@name='squadexts'] [@value='sbpextensions\squad_type_ext']") is XmlNode squadTypeList) {
-            var typeList = squadTypeList.SelectSingleNode(@"//list[@name='squad_type_list']");
-            var tmpList = new List<string>();
-            foreach (XmlNode type in typeList) {
-                tmpList.Add(type.Attributes["value"].Value);
-            }
-            Types = tmpList.ToArray();
-        } else {
-            Types = Array.Empty<string>();
-        }
-
-        // Load squad loadout
-        if (xmlDocument.SelectSingleNode(@"//template_reference[@name='squadexts'] [@value='sbpextensions\squad_loadout_ext']") is XmlElement squadLoadout) {
-            var nodes = squadLoadout.SelectNodes("//group[@name='loadout_data']");
-            List<Cost> costList = new();
-            List<Loadout> squadLoadoutData = new();
-            List<EntityBlueprint> tmpEbpCollect = new();
-            foreach (XmlElement loadout_data in nodes) {
-                int num = int.Parse(loadout_data.FindSubnode("float", "num").GetAttribute("value"));
-                string entity = loadout_data.FindSubnode("instance_reference", "type").GetAttribute("value");
-                EntityBlueprint ebp = entities.FirstOrDefault(x => entity.EndsWith(x.Name));
-                tmpEbpCollect.Add(ebp);
-                Cost[] dups = new Cost[num];
-                Array.Fill(dups, ebp?.Cost ?? new Cost(0, 0, 0, 0));
-                costList.AddRange(dups);
-                squadLoadoutData.Add(new(ebp?.Name ?? Path.GetFileNameWithoutExtension(entity), num));
-            }
-            SquadCost = new(costList.ToArray());
-            if (SquadCost.IsNull) {
-                SquadCost = null;
-            }
-            Entities = squadLoadoutData.ToArray();
-            var temp = squadLoadout.GetValue("//float [@name='squad_female_chance']");
-            FemaleChance = Program.GetFloat(squadLoadout.GetValue("//float [@name='squad_female_chance']")) / 10.0f;
-            HasCrew = tmpEbpCollect.Any(x => x?.Drivers?.Length > 0);
-        }
-
-        // Load squad abilities
-        if (xmlDocument.SelectSingleNode(@"//template_reference[@name='squadexts'] [@value='sbpextensions\squad_ability_ext']") is XmlElement squadAbilities) {
-            var nodes = squadAbilities.SelectSubnodes("instance_reference", "ability");
-            List<string> abps = new();
-            foreach (XmlNode ability in nodes) {
-                abps.Add(Path.GetFileNameWithoutExtension(ability.Attributes["value"].Value));
-            }
-            if (abps.Count > 0) {
-                Abilities = abps.ToArray();
-            }
-        }
-
-        // Load squad veterancy
-        if (xmlDocument.SelectSingleNode(@"//template_reference[@name='squadexts'] [@value='sbpextensions\squad_veterancy_ext']") is XmlElement squadVet) {
-            var ranks = squadVet.SelectNodes("//group[@name='veterancy_rank']");
-            var ranks_data = new List<VeterancyLevel>();
-            foreach (XmlElement rank in ranks) {
-                ranks_data.Add(new(
-                    rank.FindSubnode("locstring", "screen_name").GetAttribute("value"),
-                    (float)double.Parse(rank.FindSubnode("float", "experience_value").GetAttribute("value"))
-                    ));
-            }
-            Veterancy = ranks_data.ToArray();
-        }
-
-        // Load pickup data
-        if (xmlDocument.SelectSingleNode(@"//template_reference[@name='squadexts'] [@value='sbpextensions\squad_item_slot_ext']") is XmlElement squadItmes) {
-            CanPickupItems = squadItmes.FindSubnode("bool", "can_pick_up").GetAttribute("value") == bool.TrueString;
-            SlotPickupCapacity = int.Parse(squadItmes.FindSubnode("float", "num_slots").GetAttribute("value"));
-        }
-
-        // Determine if syncweapon (has team_weapon extension)
-        IsSyncWeapon = xmlDocument.SelectSingleNode(@"//template_reference[@name='squadexts'] [@value='sbpextensions\squad_team_weapon_ext']") is not null;
-
-        // Load squad upgrades
-        if (xmlDocument.SelectSingleNode(@"//template_reference[@name='squadexts'] [@value='sbpextensions\squad_upgrade_ext']") is XmlElement squadUpgrades) {
-            var nodes = squadUpgrades.SelectSubnodes("instance_reference", "upgrade");
-            List<string> ubps = new();
-            foreach (XmlNode upgrade in nodes) {
-                ubps.Add(Path.GetFileNameWithoutExtension(upgrade.Attributes["value"].Value));
-            }
-            if (ubps.Count > 0) {
-                Upgrades = ubps.ToArray();
-            }
-            UpgradeCapacity = (int)float.Parse(squadUpgrades.FindSubnode("float", "number_of_slots").GetAttribute("value"));
-        }
-
-        // Load squad pre-applied upgrades
-        if (xmlDocument.SelectSingleNode(@"//template_reference[@name='squadexts'] [@value='sbpextensions\squad_upgrade_apply_ext']") is XmlElement squadAppliedUpgrades) {
-            var nodes = squadAppliedUpgrades.SelectSubnodes("instance_reference", "upgrade");
-            List<string> ubps = new();
-            foreach (XmlNode upgrade in nodes) {
-                ubps.Add(Path.GetFileNameWithoutExtension(upgrade.Attributes["value"].Value));
-            }
-            if (ubps.Count > 0) {
-                AppliedUpgrades = ubps.ToArray();
-            }
-        }
-
+    public string[]? AppliedUpgrades {
+        get => GetValue<string[]>();
+        set => SetValue(value);
     }
 
 }

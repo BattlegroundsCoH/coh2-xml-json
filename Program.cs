@@ -1,16 +1,13 @@
 ﻿using System;
-using System.Xml;
 using System.IO;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Globalization;
 using System.Linq;
-using CoH2XML2JSON.Blueprints;
+
 using CoH2XML2JSON.Strategy;
 
 namespace CoH2XML2JSON;
-
-public delegate T BlueprintFactory<T>(XmlDocument document, string path, string name) where T : IBlueprint;
 
 public class Program {
 
@@ -31,118 +28,6 @@ public class Program {
     static string modguid;
     static string modname;
     static Dictionary<string, string> slotItemSymbols = new Dictionary<string, string>();
-    static List<EntityBlueprint> entities = new();
-
-    public static readonly string[] racebps = new string[] {
-        "racebps\\soviet",
-        "racebps\\aef",
-        "racebps\\british",
-        "racebps\\german",
-        "racebps\\west_german",
-    };
-
-    private static string GetFactionFromPath(string path) {
-        int rid = path.IndexOf("races");
-        string army = path;
-        if (rid != -1) {
-            army = path.Substring(rid + 6, path.Length - rid - 6).Split("\\")[0];
-        } else {
-            for (int i = 0; i < racebps.Length; i++) {
-                string k = racebps[i][8..];
-                if (path.Contains(k)) {
-                    return k;
-                }
-            }
-            army = "NULL";
-        }
-        if (army == "soviets") {
-            army = "soviet";
-        } else if (army == "brits") {
-            army = "british";
-        }
-        return army;
-    }
-
-    private static List<T> GenericDatabaseGet<T>(string dbname, string lookpath, BlueprintFactory<T> instanceCreator) where T : Blueprint.IBlueprint {
-
-        // Get destination
-        string fileName = Path.Combine(dirPath, dbname);
-
-        try {
-
-            // If file already exists, delete it.
-            if (File.Exists(fileName)) {
-                File.Delete(fileName);
-            }
-
-            // Get folder to search and read .xml files from
-            string searchDir = Path.Combine(instancesPath, lookpath);
-
-            // Make sure there's a folder to read
-            if (!Directory.Exists(searchDir)) {
-
-                Console.WriteLine($"INFO: \"{lookpath}\" folder not found - the database creaton will be skipped.");
-
-            } else {
-
-                var files = Directory.GetFiles(searchDir, "*.xml", SearchOption.AllDirectories);
-                List<T> bps = new();
-
-                foreach (string path in files) {
-
-                    XmlDocument document = new XmlDocument();
-                    document.Load(path);
-
-                    string name = path[(path.LastIndexOf(@"\") + 1)..^4];
-                    T bp = instanceCreator(document, path, name);
-                    string sbpsJson = JsonSerializer.Serialize(bp, serializerOptions);
-
-                    bps.Add(bp);
-
-                }
-
-                // Return found values
-                return bps;
-
-            }
-        } catch (Exception e) {
-
-            // Log error and wait for user to exit
-            Console.WriteLine(e.ToString());
-            Console.ReadLine();
-
-        }
-
-        // Return something
-        return new();
-
-    }
-
-    public static void GenericDatabaseSave<T>(string dbname, IEnumerable<T> data) where T : Blueprint.IBlueprint {
-
-        // Get destination
-        string fileName = Path.Combine(dirPath, dbname);
-
-        // Write
-        File.WriteAllText(fileName, JsonSerializer.Serialize(data.ToArray(), serializerOptions));
-        Console.WriteLine($"Created database: {fileName}");
-
-
-    }
-
-    public static void GenericDatabase<T>(string dbname, string lookpath, BlueprintFactory<T> instanceCreator) where T : Blueprint.IBlueprint {
-
-        // Get
-        var bps = GenericDatabaseGet<T>(dbname, lookpath, instanceCreator);
-
-        // Save
-        GenericDatabaseSave<T>(dbname, bps);
-
-    }
-
-    public static void GenericDatabase<T>(string dbname, BlueprintFactory<T> instanceCreator, params string[] paths) where T : Blueprint.IBlueprint {
-        GenericDatabaseSave(dbname, paths.Aggregate((IEnumerable<T>)(new List<T>()), (a, b) => a.Concat(GenericDatabaseGet<T>(dbname, b, instanceCreator))));
-    }
 
     public static void Main(string[] args) {
 
@@ -218,18 +103,6 @@ public class Program {
 
         IGameStrategy strategy = isCoH3 ? new CoH3Strategy() : new CoH2Strategy();
         strategy.Execute(goal);
-
-        GenericDatabase($"{modname}-abp-db.json", "abilities", (doc, path, name) => new AbilityBlueprint(doc, modguid, name) { Army = GetFactionFromPath(path) });
-        GenericDatabase($"{modname}-ebp-db.json", (doc, path, name) => {
-            var ebp = new EntityBlueprint(doc, modguid, name) { Army = GetFactionFromPath(path) };
-            entities.Add(ebp);
-            return ebp;
-        }, "ebps\\races", "ebps\\gameplay");
-        GenericDatabase($"{modname}-sbp-db.json", "sbps\\races", (doc, path, name) => new SquadBlueprint(doc, modguid, name, entities) { Army = GetFactionFromPath(path) });
-        GenericDatabase($"{modname}-cbp-db.json", "critical", (doc, path, name) => new CriticalBlueprint(doc, modguid, name));
-        GenericDatabase($"{modname}-ibp-db.json", "slot_item", (doc, path, name) => new SlotItemBlueprint(doc, modguid, name) { Army = GetFactionFromPath(path) });
-        GenericDatabase($"{modname}-ubp-db.json", "upgrade", (doc, path, name) => new UpgradeBlueprint(doc, modguid, name));
-        GenericDatabase($"{modname}-wbp-db.json", "weapon", (doc, path, name) => new WeaponBlueprint(doc, modguid, name, path));
 
         Console.WriteLine();
 

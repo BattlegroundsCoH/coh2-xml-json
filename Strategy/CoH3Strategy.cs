@@ -6,8 +6,12 @@ using System.Threading.Tasks;
 
 namespace CoH2XML2JSON.Strategy;
 
-public class CoH3Strategy : IGameStrategy {
-    
+/// <summary>
+/// Class implementing the <see cref="IGameStrategy"/> interface for the CoH3 reading strategy.
+/// </summary>
+public sealed class CoH3Strategy : IGameStrategy {
+
+    /// <inheritdoc/>
     public void Execute(Goal goal) {
 
 

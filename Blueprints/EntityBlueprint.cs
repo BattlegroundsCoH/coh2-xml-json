@@ -1,17 +1,33 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel;
-using System.IO;
-using System.Xml;
+﻿using System.ComponentModel;
+
 using CoH2XML2JSON.Blueprint.DataEntry;
 using CoH2XML2JSON.Blueprints.Constraints;
 
 namespace CoH2XML2JSON.Blueprints;
 
-public class EntityBlueprint : IBlueprint, IBlueprintOfArmy {
+/// <summary>
+/// Represents a blueprint for an entity that can be deployed by an army in the game.
+/// </summary>
+public sealed class EntityBlueprint : BaseBlueprint<EntityBlueprint>, IBlueprintOfArmy {
 
+    /// <summary>
+    /// Represents the crew of an <see cref="EntityBlueprint"/>.
+    /// </summary>
     public readonly struct EBPCrew {
+
+        /// <summary>
+        /// The army of the crew.
+        /// </summary>
         public string Army { get; }
+
+        /// <summary>
+        /// The SBP of the crew.
+        /// </summary>
         public string SBP { get; }
+
+        /// <summary>
+        /// The capture type of the crew.
+        /// </summary>
         public string Capture { get; }
         public EBPCrew(string army, string sbp, string capture) {
             Army = army;
@@ -20,141 +36,108 @@ public class EntityBlueprint : IBlueprint, IBlueprintOfArmy {
         }
     }
 
-    public string ModGUID { get; }
+    /// <inheritdoc/>
+    public string? ModGUID { get; init; }
 
-    public ulong PBGID { get; }
+    /// <inheritdoc/>
+    public ulong PBGID { get; init; }
 
-    public string Name { get; }
+    /// <inheritdoc/>
+    public string Name { get; init; } = string.Empty;
 
-    public string Army { get; set; }
+    /// <inheritdoc/>
+    public string? Army {
+        get => GetValue<string>();
+        set => SetValue(value);
+    }
 
+    /// <summary>
+    /// The user interface (UI) display for this entity blueprint.
+    /// </summary>
     [DefaultValue(null)]
-    public UI Display { get; }
+    public UI? Display {
+        get => GetValue<UI>();
+        set => SetValue(value);
+    }
 
-    public Cost Cost { get; }
+    /// <summary>
+    /// The cost required to deploy this entity blueprint.
+    /// </summary>
+    public Cost? Cost { 
+        get => GetValue<Cost>();
+        set => SetValue(value);
+    }
 
+    /// <summary>
+    /// The abilities that can be used by this entity blueprint.
+    /// </summary>
     [DefaultValue(null)]
-    public string[] Abilities { get; }
+    public string[]? Abilities {
+        get => GetValue<string[]>();
+        set => SetValue(value);
+    }
 
+    /// <summary>
+    /// The drivers of this entity blueprint.
+    /// </summary>
     [DefaultValue(null)]
-    public EBPCrew[] Drivers { get; }
+    public EBPCrew[]? Drivers {
+        get => GetValue<EBPCrew[]>();
+        set => SetValue(value);
+    }
 
+    /// <summary>
+    /// The hardpoints of this entity blueprint.
+    /// </summary>
     [DefaultValue(null)]
-    public string[] Hardpoints { get; }
+    public string[]? Hardpoints {
+        get => GetValue<string[]>();
+        set => SetValue(value);
+    }
 
+    /// <summary>
+    /// Indicates whether this entity blueprint has a recrewable extension.
+    /// </summary>
     [DefaultValue(false)]
-    public bool HasRecrewableExtension { get; }
+    public bool HasRecrewableExtension {
+        get => GetValue<bool>();
+        set => SetValue(value);
+    }
 
+    /// <summary>
+    /// The health of this entity blueprint.
+    /// </summary>
     [DefaultValue(0.0f)]
-    public float Health { get; }
+    public float Health {
+        get => GetValue<float>();
+        set => SetValue(value);
+    }
 
+    /// <summary>
+    /// The upgrades available for this entity blueprint.
+    /// </summary>
     [DefaultValue(null)]
-    public string[] Upgrades { get; }
+    public string[]? Upgrades {
+        get => GetValue<string[]>();
+        set => SetValue(value);
+    }
 
+    /// <summary>
+    /// The upgrades that have been applied to this entity blueprint.
+    /// </summary>
     [DefaultValue(null)]
-    public string[] AppliedUpgrades { get; }
+    public string[]? AppliedUpgrades {
+        get => GetValue<string[]>();
+        set => SetValue(value);
+    }
 
+    /// <summary>
+    /// The upgrade capacity of this entity blueprint.
+    /// </summary>
     [DefaultValue(0)]
-    public int UpgradeCapacity { get; }
-
-    public EntityBlueprint(XmlDocument xmlDocument, string guid, string name) {
-
-        // Set the name
-        Name = name;
-
-        // Set mod GUID
-        ModGUID = string.IsNullOrEmpty(guid) ? null : guid;
-
-        // Load pbgid
-        PBGID = ulong.Parse(xmlDocument["instance"]["uniqueid"].GetAttribute("value"));
-
-        // Load display
-        Display = new(xmlDocument.SelectSingleNode(@"//template_reference[@name='exts'] [@value='ebpextensions\ui_ext']") as XmlElement);
-
-        // Load Cost
-        Cost = new(xmlDocument.SelectSingleNode(@"//template_reference[@name='exts'] [@value='ebpextensions\cost_ext']") as XmlElement);
-        if (Cost.IsNull) {
-            Cost = null;
-        }
-
-        // Load abilities
-        if (xmlDocument.SelectSingleNode(@"//template_reference[@name='exts'] [@value='ebpextensions\ability_ext']") is XmlElement abilities) {
-            var nodes = abilities.SelectSubnodes("instance_reference", "ability");
-            List<string> abps = new();
-            foreach (XmlNode ability in nodes) {
-                abps.Add(Path.GetFileNameWithoutExtension(ability.Attributes["value"].Value));
-            }
-            if (abps.Count > 0) {
-                Abilities = abps.ToArray();
-            }
-        }
-
-        // Load drivers (if any)
-        if (xmlDocument.SelectSingleNode(@"//template_reference[@name='exts'] [@value='ebpextensions\recrewable_ext']") is XmlElement recrewable) {
-            List<EBPCrew> crews = new();
-            var nodes = recrewable.SelectSubnodes("group", "race_data");
-            foreach (XmlElement driver in nodes) {
-                var armyNode = driver.FindSubnode("instance_reference", "ext_key");
-                var driverNode = driver.FindSubnode("instance_reference", "driver_squad_blueprint");
-                if (!string.IsNullOrEmpty(driverNode.GetAttribute("value"))) {
-                    var captureNode = driver.FindSubnode("instance_reference", "capture_squad_blueprint");
-                    crews.Add(new(armyNode.GetAttribute("value"),
-                        Path.GetFileNameWithoutExtension(driverNode.GetAttribute("value")),
-                        Path.GetFileNameWithoutExtension(captureNode.GetAttribute("value"))));
-                }
-            }
-            if (crews.Count > 0) {
-                Drivers = crews.ToArray();
-            }
-        }
-
-        // Load hardpoints (if any)
-        if (xmlDocument.SelectSingleNode(@"//template_reference[@name='exts'] [@value='ebpextensions\combat_ext']") is XmlElement hardpoints) {
-            var nodes = hardpoints.SelectNodes("//instance_reference[@name='weapon']");
-            List<string> wpbs = new();
-            foreach (XmlNode wpn in nodes) {
-                var hardpoint = wpn.Attributes["value"].Value;
-                if (!string.IsNullOrEmpty(hardpoint)) {
-                    wpbs.Add(Path.GetFileNameWithoutExtension(hardpoint));
-                }
-            }
-            if (wpbs.Count > 0) {
-                Hardpoints = wpbs.ToArray();
-            }
-        }
-
-        // Get hitpoints (if any)
-        if (xmlDocument.SelectSingleNode(@"//template_reference[@name='exts'] [@value='ebpextensions\health_ext']") is XmlElement health) {
-            Health = float.Parse(health.GetValue("//float[@name='hitpoints']"));
-        }
-
-
-        // Load upgrades
-        if (xmlDocument.SelectSingleNode(@"//template_reference[@name='exts'] [@value='ebpextensions\upgrade_ext']") is XmlElement upgrades) {
-            var nodes = upgrades.SelectSubnodes("instance_reference", "upgrade");
-            List<string> ubps = new();
-            foreach (XmlNode ability in nodes) {
-                ubps.Add(Path.GetFileNameWithoutExtension(ability.Attributes["value"].Value));
-            }
-            if (ubps.Count > 0) {
-                Upgrades = ubps.ToArray();
-            }
-            UpgradeCapacity = (int)float.Parse(upgrades.FindSubnode("float", "number_of_standard_slots").GetAttribute("value"));
-        }
-
-
-        // Load applied upgrades
-        if (xmlDocument.SelectSingleNode(@"//template_reference[@name='exts'] [@value='ebpextensions\upgrade_apply_ext']") is XmlElement appliedUpgrades) {
-            var nodes = appliedUpgrades.SelectSubnodes("instance_reference", "upgrade");
-            List<string> ubps = new();
-            foreach (XmlNode ability in nodes) {
-                ubps.Add(Path.GetFileNameWithoutExtension(ability.Attributes["value"].Value));
-            }
-            if (ubps.Count > 0) {
-                AppliedUpgrades = ubps.ToArray();
-            }
-        }
-
+    public int UpgradeCapacity {
+        get => GetValue<int>();
+        set => SetValue(value);
     }
 
 }
