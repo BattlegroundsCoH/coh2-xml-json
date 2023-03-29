@@ -1,4 +1,4 @@
-name: .NET Core
+name: .NET Core Release
 
 on: [push]
 
@@ -6,7 +6,7 @@ permissions:
   contents: write
 
 jobs:
-  build:
+  build-artifact:
 
     runs-on: ubuntu-latest
 
