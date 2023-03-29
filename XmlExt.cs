@@ -6,9 +6,9 @@ namespace CoH2XML2JSON;
 public static class XmlExt {
 
     public static string GetValue(this XmlElement element, string nodePath, string attribute = "value")
-        => (element.SelectSingleNode(nodePath) as XmlElement).GetAttribute(attribute);
+        => (element.SelectSingleNode(nodePath) as XmlElement)!.GetAttribute(attribute);
 
-    public static XmlElement FindSubnode(this XmlElement e, string type, string name, string value) {
+    public static XmlElement? FindSubnode(this XmlElement e, string type, string name, string value) {
         foreach (XmlElement sub in e) {
             if (sub.Name == type && sub.HasAttribute("name") && sub.GetAttribute("name") == name && sub.HasAttribute("value") && sub.GetAttribute("value") == value) {
                 return sub;
@@ -22,7 +22,7 @@ public static class XmlExt {
         return null;
     }
 
-    public static XmlElement FindSubnode(this XmlElement e, string type, string name) {
+    public static XmlElement? FindSubnode(this XmlElement e, string type, string name) {
         foreach (XmlElement sub in e) {
             if (sub.Name == type && sub.HasAttribute("name") && sub.GetAttribute("name") == name) {
                 return sub;

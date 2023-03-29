@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Xml;
@@ -61,7 +62,7 @@ public sealed class CoH2SquadReader : IBlueprintReader<SquadBlueprint> {
             }
             SBP.Entities = squadLoadoutData.ToArray();
             var temp = squadLoadout.GetValue("//float [@name='squad_female_chance']");
-            SBP.FemaleChance = Program.GetFloat(squadLoadout.GetValue("//float [@name='squad_female_chance']")) / 10.0f;
+            SBP.FemaleChance = float.Parse(squadLoadout.GetValue("//float [@name='squad_female_chance']"), CultureInfo.InvariantCulture) / 10.0f;
             SBP.HasCrew = tmpEbpCollect.Any(x => x?.Drivers?.Length > 0);
         }
 

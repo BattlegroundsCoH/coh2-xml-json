@@ -8,7 +8,7 @@ namespace CoH2XML2JSON.Blueprints;
 /// <summary>
 /// Blueprint for a slot item that can be equipped on a unit.
 /// </summary>
-public class SlotItemBlueprint : BaseBlueprint<SlotItemBlueprint>, IBlueprintOfArmy {
+public sealed class SlotItemBlueprint : BaseBlueprint<SlotItemBlueprint>, IBlueprintOfArmy {
 
     /// <inheritdoc/>
     public string? ModGUID { get; init; }

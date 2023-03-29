@@ -1,20 +1,14 @@
 ﻿using System;
 using System.IO;
-using System.Collections.Generic;
 using System.Text.Json;
-using System.Globalization;
 using System.Linq;
+using System.Diagnostics.CodeAnalysis;
 
 using CoH2XML2JSON.Strategy;
 
 namespace CoH2XML2JSON;
 
 public class Program {
-
-    // Define the culture to use when parsing numbers etc.
-    public static readonly CultureInfo FormatCulture = CultureInfo.GetCultureInfo("en-US");
-
-    public static float GetFloat(string value) => float.Parse(value, FormatCulture);
 
     public static readonly JsonSerializerOptions SerializerOptions = new() { 
         WriteIndented = true, 
@@ -23,48 +17,50 @@ public class Program {
         DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault
     };
 
-    static string dirPath;
-    static string instancesPath;
-    static string modguid;
-    static string modname;
-    static Dictionary<string, string> slotItemSymbols = new Dictionary<string, string>();
-
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public static void Main(string[] args) {
+
+        string dirPath = string.Empty;
+        string instancesPath = string.Empty;
+        string modguid = string.Empty;
+        string modname = string.Empty;
 
         bool doLastIgnoreInput = args.Contains("-do_last");
         bool isCoH3 = args.Contains("-coh3");
 
         Console.WriteLine(string.Join(" ", args));
 
-        Goal last = null;
+        Goal? last = null;
         if (File.Exists("last.json")) {
             last = JsonSerializer.Deserialize<Goal>(File.ReadAllText("last.json"));
-            Console.WriteLine("Use settings from last execution?");
-            Console.WriteLine("Output Directory: " + last.OutPath);
-            Console.WriteLine("Instance Directory: " + last.InstancePath);
-            Console.WriteLine("ModGUID: " + last.ModGuid);
-            Console.WriteLine();
-            if (doLastIgnoreInput) {
-                dirPath = last.OutPath;
-                modguid = last.ModGuid;
-                instancesPath = last.InstancePath;
-                modname = last.ModName;
-            } else {
-                Console.Write("(Y/N): ");
-                if (Console.ReadLine().ToLower() is not "y") {
-                    last = null;
-                } else {
+            if (last is not null) {
+                Console.WriteLine("Use settings from last execution?");
+                Console.WriteLine("Output Directory: " + last.OutPath);
+                Console.WriteLine("Instance Directory: " + last.InstancePath);
+                Console.WriteLine("ModGUID: " + last.ModGuid);
+                Console.WriteLine();
+                if (doLastIgnoreInput) {
                     dirPath = last.OutPath;
                     modguid = last.ModGuid;
                     instancesPath = last.InstancePath;
                     modname = last.ModName;
+                } else {
+                    Console.Write("(Y/N): ");
+                    if (Console.ReadLine()!.ToLower() is not "y") {
+                        last = null;
+                    } else {
+                        dirPath = last.OutPath;
+                        modguid = last.ModGuid;
+                        instancesPath = last.InstancePath;
+                        modname = last.ModName;
+                    }
                 }
             }
         }
 
         if (last is null) {
             Console.Write("Set path where you want the files to be created to: ");
-            dirPath = Console.ReadLine();
+            dirPath = Console.ReadLine()!;
 
             while (!Directory.Exists(dirPath)) {
                 if (string.IsNullOrEmpty(dirPath)) { // Because I'm lazy - this is a quick method to simply use the directory of the .exe
@@ -73,25 +69,25 @@ public class Program {
                     break;
                 }
                 Console.Write("Invalid path! Try again: ");
-                dirPath = Console.ReadLine();
+                dirPath = Console.ReadLine()!;
             }
 
             Console.Write("Set path to your \"instances\" folder: ");
-            instancesPath = Console.ReadLine();
+            instancesPath = Console.ReadLine()!;
 
             while (!Directory.Exists(instancesPath) && !instancesPath.EndsWith(@"\instances")) {
                 Console.Write("Invalid path! Try again: ");
-                instancesPath = Console.ReadLine();
+                instancesPath = Console.ReadLine()!;
             }
 
             Console.Write("Mod GUID (Leave empty if not desired/available):");
-            modguid = Console.ReadLine().Replace("-", "");
+            modguid = Console.ReadLine()!.Replace("-", "");
             if (modguid.Length != 32) {
                 modguid = string.Empty;
             }
 
             Console.Write("Mod Name (Leave empty for vanilla):");
-            modname = Console.ReadLine();
+            modname = Console.ReadLine()!;
             if (string.IsNullOrEmpty(modname)) {
                 modname = "vcoh";
             }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text.Json.Serialization;
@@ -9,8 +10,7 @@ using CoH2XML2JSON.Converter;
 namespace CoH2XML2JSON.Blueprint.DataEntry;
 
 [JsonConverter(typeof(StringEnumConverter))]
-public enum RequirementType
-{
+public enum RequirementType {
     not_supported,
     required_none,
     required_all_in_list,
@@ -39,23 +39,22 @@ public enum RequirementType
 }
 
 [JsonConverter(typeof(StringEnumConverter))]
-public enum RequirementReason
-{
+public enum RequirementReason {
     unknown,
     display,
     usage,
     usage_and_display
 }
 
-public class Requirement {
+public sealed class Requirement {
 
     public RequirementType RequirementType { get; }
 
     public RequirementReason RequirementReason { get; }
 
-    public string UIText { get; }
+    public string? UIText { get; }
 
-    public Dictionary<string, object> RequirementProperties { get; }
+    public Dictionary<string, object?> RequirementProperties { get; }
 
     private static readonly (string, string)[] name_skip = { ("enum", "reason"), ("locstring", "ui_name") };
 
@@ -94,7 +93,7 @@ public class Requirement {
 
     }
 
-    private static object GetObj(XmlElement e, string type, string name) => type switch {
+    private static object? GetObj(XmlElement e, string type, string name) => type switch {
         "enum" or "string" => e.GetAttribute("value"),
         "instance_reference" => Path.GetFileNameWithoutExtension(e.GetAttribute("value")),
         "locstring" => UI.GetStr(e),
@@ -106,23 +105,23 @@ public class Requirement {
     };
 
     private static float GetFloat(string val) {
-        if (float.TryParse(val, out float fl)) {
+        if (float.TryParse(val, NumberStyles.Float, CultureInfo.InvariantCulture, out float fl)) {
             return fl;
         } else {
             return float.NaN;
         }
     }
 
-    private static List<object> GetList(XmlElement ls) {
-        List<object> objs = new();
+    private static List<object?> GetList(XmlElement ls) {
+        List<object?> objs = new();
         foreach (XmlElement sub in ls) {
             objs.Add(GetObj(sub, sub.Name, sub.GetAttribute("name")));
         }
         return objs;
     }
 
-    private static Dictionary<string, object> GetGroup(XmlElement ls) {
-        Dictionary<string, object> objs = new();
+    private static Dictionary<string, object?> GetGroup(XmlElement ls) {
+        Dictionary<string, object?> objs = new();
         foreach (XmlElement sub in ls) {
             objs[sub.GetAttribute("name")] = GetObj(sub, sub.Name, sub.GetAttribute("name"));
         }
@@ -136,7 +135,7 @@ public class Requirement {
         return RequirementType.not_supported;
     }
 
-    public static Requirement[] GetRequirements(XmlElement xmlExtElement) {
+    public static Requirement[]? GetRequirements(XmlElement xmlExtElement) {
         if (xmlExtElement is null) {
             return null;
         }
