@@ -37,13 +37,13 @@ public sealed class CoH2Strategy : IGameStrategy {
         RegistryProducer<EntityBlueprint> entityRegistry = new RegistryProducer<EntityBlueprint>();
 
         // Create databases
-        IGameStrategy.CreateDatabase(goal, $"{goal.ModName}-abp-db.json", "abilities", abilityReader, armyHandler);
-        IGameStrategy.CreateDatabase(goal, $"{goal.ModName}-cbp-db.json", "critical", criticalReader);
-        IGameStrategy.CreateDatabase(goal, $"{goal.ModName}-ebp-db.json", new[] { "ebps\\races", "ebps\\gameplay" }, entityReader, armyHandler, entityRegistry);
-        IGameStrategy.CreateDatabase(goal, $"{goal.ModName}-ebp-db.json", "sbps\\races", squadReader, armyHandler, entityRegistry.CreateConsumer());
-        IGameStrategy.CreateDatabase(goal, $"{goal.ModName}-cbp-db.json", "slot_item", slotItemReader, armyHandler);
-        IGameStrategy.CreateDatabase(goal, $"{goal.ModName}-cbp-db.json", "upgrade", upgradeReader);
-        IGameStrategy.CreateDatabase(goal, $"{goal.ModName}-cbp-db.json", "weapon", weaponReader);
+        IGameStrategy.CreateDatabase(goal, $"{goal.ModName}-abp-db-coh2.json", "abilities", abilityReader, armyHandler);
+        IGameStrategy.CreateDatabase(goal, $"{goal.ModName}-cbp-db-coh2.json", "critical", criticalReader);
+        IGameStrategy.CreateDatabase(goal, $"{goal.ModName}-ebp-db-coh2.json", new[] { "ebps\\races", "ebps\\gameplay" }, entityReader, armyHandler, entityRegistry);
+        IGameStrategy.CreateDatabase(goal, $"{goal.ModName}-ebp-db-coh2.json", "sbps\\races", squadReader, armyHandler, entityRegistry.CreateConsumer());
+        IGameStrategy.CreateDatabase(goal, $"{goal.ModName}-cbp-db-coh2.json", "slot_item", slotItemReader, armyHandler);
+        IGameStrategy.CreateDatabase(goal, $"{goal.ModName}-cbp-db-coh2.json", "upgrade", upgradeReader);
+        IGameStrategy.CreateDatabase(goal, $"{goal.ModName}-cbp-db-coh2.json", "weapon", weaponReader);
 
     }
 

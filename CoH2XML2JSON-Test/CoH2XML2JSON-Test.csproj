@@ -28,4 +28,8 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Strategy\CoH3\" />
+  </ItemGroup>
+
 </Project>
