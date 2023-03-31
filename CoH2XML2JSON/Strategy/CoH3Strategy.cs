@@ -17,6 +17,10 @@ namespace CoH2XML2JSON.Strategy;
 public sealed class CoH3Strategy : IGameStrategy {
 
     private readonly IBlueprintReader<AbilityBlueprint> abilityReader = new CoH3AbilityReader();
+    private readonly IBlueprintReader<SquadBlueprint> squadReader = new CoH3SquadReader();
+    private readonly IBlueprintReader<EntityBlueprint> entityReader = new CoH3EntityReader();
+    private readonly IBlueprintReader<UpgradeBlueprint> upgradeReader = new CoH3UpgradeReader();
+    private readonly IBlueprintReader<WeaponBlueprint> weaponReader = new CoH3WeaponReader();
 
     private static readonly string[] racebps = new string[] {
         "racebps\\americans",
@@ -36,6 +40,10 @@ public sealed class CoH3Strategy : IGameStrategy {
 
         // Create database
         IGameStrategy.CreateDatabase(goal, $"{goal.ModName}-abp-db-coh3.json", "abilities", abilityReader, armyHandler);
+        IGameStrategy.CreateDatabase(goal, $"{goal.ModName}-sbp-db-coh3.json", "ebps\\races", squadReader, armyHandler, entityRegistry);
+        IGameStrategy.CreateDatabase(goal, $"{goal.ModName}-ebp-db-coh3.json", "sbps\\races", entityReader, armyHandler, entityRegistry.CreateConsumer());
+        IGameStrategy.CreateDatabase(goal, $"{goal.ModName}-ubp-db-coh3.json", "upgrade", upgradeReader);
+        IGameStrategy.CreateDatabase(goal, $"{goal.ModName}-wbp-db-coh3.json", "weapon", weaponReader);
 
     }
 

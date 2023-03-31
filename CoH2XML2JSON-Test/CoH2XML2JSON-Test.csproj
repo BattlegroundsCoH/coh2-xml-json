@@ -23,13 +23,51 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Xml\coh3\abilities\races\british_africa\gammon_bomb_guards_africa_uk.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Xml\coh3\ebps\races\afrika_korps\guastatori_ak.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Xml\coh3\ebps\races\afrika_korps\panzer_iii_ak.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Xml\coh3\ebps\races\british_africa\tw_at_gun_6pdr_africa_uk.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Xml\coh3\sbps\races\german\bersaglieri_ger.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Xml\coh3\sbps\races\german\guastatori_ger.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Xml\coh3\sbps\races\german\hmg_mg42_ger.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Xml\coh3\sbps\races\german\tiger_ger.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Xml\coh3\upgrade\flamethrower_sapper_africa_uk.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Xml\coh3\upgrade\lmg_bren_tommy_africa_uk.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Xml\coh3\upgrade\piat_sapper_africa_uk.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Xml\coh3\weapon\american\small_arms\single_fire\rifle\carbine_paratrooper_us.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Xml\coh3\weapon\american\small_arms\single_fire\rifle\garand_rifleman_us.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Xml\coh3\weapon\american\small_arms\single_fire\rifle\springfield_sniper_us.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Xml\SlotItemDummy.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Strategy\CoH3\" />
   </ItemGroup>
 
 </Project>
