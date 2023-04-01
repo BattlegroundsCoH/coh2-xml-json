@@ -1,14 +1,15 @@
 ﻿using System.ComponentModel;
 
-using CoH2XML2JSON.Blueprint.DataEntry;
 using CoH2XML2JSON.Blueprints.Constraints;
+using CoH2XML2JSON.Blueprints.DataEntry;
+using CoH2XML2JSON.Blueprints.Relations;
 
 namespace CoH2XML2JSON.Blueprints;
 
 /// <summary>
 /// Represents a blueprint for an ability that can be used by an army, squad, or entity.
 /// </summary>
-public sealed class AbilityBlueprint : BaseBlueprint<AbilityBlueprint>, IBlueprintOfArmy {
+public sealed class AbilityBlueprint : BaseBlueprint<AbilityBlueprint>, IBlueprintOfArmy, IBlueprintWithCost, IBlueprintWithDisplay {
 
     /// <inheritdoc/>
     public string Name { get; init; } = string.Empty;
@@ -47,7 +48,7 @@ public sealed class AbilityBlueprint : BaseBlueprint<AbilityBlueprint>, IBluepri
     /// The activation mode for the ability.
     /// </summary>
     public string? Activation {
-        get => GetValue<string>();
+        get => GetValueWhereDefaultMatches<string>(string.IsNullOrEmpty);
         set => SetValue(value);
     }
 

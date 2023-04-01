@@ -1,7 +1,8 @@
 ﻿using System.ComponentModel;
 using System.Text.Json.Serialization;
 
-using CoH2XML2JSON.Blueprint.DataEntry;
+using CoH2XML2JSON.Blueprints.DataEntry;
+using CoH2XML2JSON.Blueprints.Relations;
 using CoH2XML2JSON.Converter;
 
 namespace CoH2XML2JSON.Blueprints;

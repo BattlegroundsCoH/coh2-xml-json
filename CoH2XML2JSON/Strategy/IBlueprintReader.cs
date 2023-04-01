@@ -18,7 +18,7 @@ public interface IBlueprintReader<T> where T : IBlueprint {
     /// <param name="modGuid">The mod GUID that the XML document belongs to.</param>
     /// <param name="filename">The name of the XML document.</param>
     /// <param name="helpers">The helpers to use when loading the XML document.</param>
-    /// <returns>An object of type <typeparamref name="T"/> that represents the deserialized XML document.</returns>
-    T FromXml(XmlDocument xml, string modGuid, string filename, Helpers helpers); 
+    /// <returns>An object of type <typeparamref name="T"/> that represents the deserialized XML document. May return <c>null</c> if some preconditions are not met.</returns>
+    T? FromXml(XmlDocument xml, string modGuid, string filename, Helpers helpers); 
 
 }

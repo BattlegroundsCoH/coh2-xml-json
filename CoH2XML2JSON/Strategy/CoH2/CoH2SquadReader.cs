@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Xml;
 
-using CoH2XML2JSON.Blueprint.DataEntry;
+using CoH2XML2JSON.Blueprints.DataEntry;
 using CoH2XML2JSON.Blueprints;
 using CoH2XML2JSON.Strategy.Handlers;
 

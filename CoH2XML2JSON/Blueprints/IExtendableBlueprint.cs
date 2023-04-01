@@ -7,9 +7,14 @@
 public interface IExtendableBlueprint<T> where T : IBlueprint {
 
     /// <summary>
-    /// Gets or sets the blueprint being extended.
+    /// Gets or sets the path to the blueprint being extended.
     /// </summary>
-    /// <value>The blueprint being extended. Can be <c>null</c>.</value>
-    public T? Extends { get; set; }
+    string? ParentFilepath { get; set; }
+
+    /// <summary>
+    /// Gets the parent blueprint.
+    /// </summary>
+    /// <returns>The <typeparamref name="T"/> being extended by this <typeparamref name="T"/> instance.</returns>
+    T? GetParent();
 
 }

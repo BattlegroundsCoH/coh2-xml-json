@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Xml;
 
-using CoH2XML2JSON.Blueprint.DataEntry;
+using CoH2XML2JSON.Blueprints.DataEntry;
 using CoH2XML2JSON.Blueprints;
 
 namespace CoH2XML2JSON.Strategy.CoH2;

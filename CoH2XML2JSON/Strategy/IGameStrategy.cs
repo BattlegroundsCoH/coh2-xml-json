@@ -95,7 +95,9 @@ public interface IGameStrategy {
 
         // Get handlers
         var helpers = new Helpers(handlers.Where(x => x is IBlueprintHelperHandler).Cast<IBlueprintHelperHandler>().ToArray());
+        var xmlHandlers = handlers.Where(x => x is IBlueprintXmlHandler).Cast<IBlueprintXmlHandler>();
         var postHandlers = handlers.Where(x => x is IBlueprintPostHandler).Cast<IBlueprintPostHandler>();
+        var postDbHandlers = handlers.Where(x => x is IBlueprintPostDatabaseHandler).Cast<IBlueprintPostDatabaseHandler>();
 
         try {
 
@@ -123,15 +125,24 @@ public interface IGameStrategy {
                     document.Load(path);
 
                     string name = path[(path.LastIndexOf(@"\") + 1)..^4];
-                    T bp = postHandlers.Aggregate(reader.FromXml(document, path, name, helpers), (x, y) => y.Handle(x, path));
+                    T? bpXml = reader.FromXml(document, path, name, helpers);
+                    if (bpXml is null) {
+                        continue;
+                    }
+
+                    T postXmlBp = xmlHandlers.Aggregate(bpXml, (x, y) => y.Handle(document, x, helpers));
+                    T bp = postHandlers.Aggregate(postXmlBp, (x, y) => y.Handle(x, path));
                     string sbpsJson = JsonSerializer.Serialize(bp, Program.SerializerOptions);
 
                     bps.Add(bp);
 
                 }
 
+                // Get post DB
+                IList<T> handledBps = postDbHandlers.Aggregate((IList<T>)bps, (x, y) => y.Handle(x));
+
                 // Return found values
-                return bps;
+                return handledBps;
 
             }
         } catch (Exception e) {

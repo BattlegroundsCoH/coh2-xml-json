@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 
-using CoH2XML2JSON.Blueprint.DataEntry;
+using CoH2XML2JSON.Blueprints.DataEntry;
+using CoH2XML2JSON.Blueprints.Relations;
 
 namespace CoH2XML2JSON.Blueprints;
 

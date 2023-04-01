@@ -29,4 +29,10 @@ public sealed class Goal {
     /// <value>The mod name for the goal object.</value>
     public string ModName { get; set; } = string.Empty;
 
+    /// <summary>
+    /// Gets or sets the variant to pick when converting a CoH3 blueprint.
+    /// </summary>
+    /// <value>The name of the variant to use when reading a CoH3 XML blueprint file.</value>
+    public string Variant { get; set; } = "default";
+
 }

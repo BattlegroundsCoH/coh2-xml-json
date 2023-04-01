@@ -7,7 +7,7 @@ using System.Text.Json.Serialization;
 using System.Xml;
 using CoH2XML2JSON.Converter;
 
-namespace CoH2XML2JSON.Blueprint.DataEntry;
+namespace CoH2XML2JSON.Blueprints.DataEntry;
 
 [JsonConverter(typeof(StringEnumConverter))]
 public enum RequirementType {

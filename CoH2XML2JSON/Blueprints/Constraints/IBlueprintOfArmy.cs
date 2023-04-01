@@ -1,7 +1,7 @@
 ﻿namespace CoH2XML2JSON.Blueprints.Constraints;
 
 /// <summary>
-/// Represents a blueprint that is associated with an army.
+/// Represents an <see cref="IBlueprint"/> that is associated with an army.
 /// </summary>
 public interface IBlueprintOfArmy : IBlueprint {
 

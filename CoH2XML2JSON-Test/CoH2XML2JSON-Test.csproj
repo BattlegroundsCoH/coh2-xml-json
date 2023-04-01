@@ -26,6 +26,9 @@
     <None Update="Xml\coh3\abilities\races\british_africa\gammon_bomb_guards_africa_uk.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Xml\coh3\abilities\races\common\infantry\grenade_parent.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Xml\coh3\ebps\races\afrika_korps\guastatori_ak.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
