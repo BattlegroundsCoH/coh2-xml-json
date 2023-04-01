@@ -51,11 +51,11 @@ public sealed class Cost : Extendable<Cost> {
     /// Initializes a new instance of the <see cref="Cost"/> class with the sum of the specified costs.
     /// </summary>
     /// <param name="costs">The costs to sum.</param>
-    public Cost(params Cost[] costs) {
-        Manpower = costs.Sum(x => x.Manpower);
-        Munition = costs.Sum(x => x.Munition);
-        Fuel = costs.Sum(x => x.Fuel);
-        FieldTime = costs.Sum(x => x.FieldTime);
+    public Cost(params Cost?[] costs) {
+        Manpower = costs.Sum(x => x is null ? 0 : x.Manpower);
+        Munition = costs.Sum(x => x is null ? 0 : x.Munition);
+        Fuel = costs.Sum(x => x is null ? 0 : x.Fuel);
+        FieldTime = costs.Sum(x => x is null ? 0 : x.FieldTime);
     }
 
     /// <summary>

@@ -1,16 +1,66 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml;
 
 using CoH2XML2JSON.Blueprints;
+using CoH2XML2JSON.Blueprints.DataEntry;
+using CoH2XML2JSON.Strategy.Handlers;
 
 namespace CoH2XML2JSON.Strategy.CoH3;
 
-public class CoH3SquadReader : IBlueprintReader<SquadBlueprint> {
-    public SquadBlueprint FromXml(XmlDocument xml, string modGuid, string filename, Helpers helpers) {
-        throw new NotImplementedException();
+public sealed class CoH3SquadReader : IBlueprintReader<SquadBlueprint> {
+
+    public SquadBlueprint? FromXml(XmlDocument xml, string modGuid, string filename, Helpers helpers) {
+
+        // Get variant helper
+        VariantSelector variant = helpers.GetHelper<VariantSelector>();
+
+        // Pick
+        var xmlDocument = variant.Select(xml);
+        if (xmlDocument is null) {
+            Console.WriteLine("Failed finding variant '{0}' for blueprint '{1}'.", variant.Variant, filename);
+            return null;
+        }
+
+        // Get registered entities
+        RegistryConsumer<EntityBlueprint> entityConsumer = helpers.GetHelper<RegistryConsumer<EntityBlueprint>>();
+
+        // Create SBP
+        SquadBlueprint SBP = new SquadBlueprint() {
+            Name = filename,
+            ModGUID = string.IsNullOrEmpty(modGuid) ? null : modGuid,
+            PBGID = ulong.Parse(xmlDocument["uniqueid"]?.GetAttribute("value") ?? "0"),
+            Display = new UI(xmlDocument?.SelectSingleNode(@"//template_reference[@name='squadexts'] [@value='sbpextensions\squad_ui_ext']") as XmlElement),
+            Abilities = xmlDocument?.SelectSingleNode(@"//template_reference[@name='squadexts'] [@value='sbpextensions\squad_ability_ext']")
+                ?.SelectNodes(@"//instance_reference[@name='ability']")?.MapTo(x => x.GetAttribute("value")) ?? null,
+            Upgrades = xmlDocument?.SelectSingleNode(@"//template_reference[@name='squadexts'] [@value='sbpextensions\upgrade_ext']")
+                ?.SelectNodes(@"//instance_reference[@name='upgrade']")?.MapTo(x => x.GetAttribute("value")) ?? null,
+            Types = xmlDocument?.SelectSingleNode(@"//template_reference[@name='squadexts'] [@value='sbpextensions\squad_type_ext']")
+                ?.SelectNodes(@"//enum[@name='unit_type']")?.MapTo(x => x.GetAttribute("value")) ?? Array.Empty<string>()
+        };
+
+        // Grab the loadout
+        var loadoutEntities = new List<EntityBlueprint>();
+        SBP.Entities = xmlDocument?.SelectSingleNode(@"//template_reference[@name='squadexts'] [@value='sbpextensions\squad_loadout_ext']")
+            ?.SelectNodes(@"//group[@name='loadout_data']")?.MapTo(x => {
+                int num = (int)float.Parse((x.SelectSingleNode(@"//float[@name='num']") as XmlElement)?.GetAttribute("value") ?? "0", CultureInfo.InvariantCulture);
+                string ebpFilename = (x.SelectSingleNode(@"//instance_reference[@name='type']") as XmlElement)?.GetAttribute("value") ?? string.Empty;
+                if (entityConsumer.Registry.FirstOrDefault(x => x.Name == ebpFilename) is EntityBlueprint ebp) {
+                    loadoutEntities.Add(ebp);
+                }
+                return new SquadBlueprint.Loadout(ebpFilename, num);
+            }) ?? Array.Empty<SquadBlueprint.Loadout>();
+
+        // Set cost
+        SBP.SquadCost = new Cost(loadoutEntities.Select(x => x.Cost).ToArray() ?? Array.Empty<Cost>());
+
+
+
+        // Return SBP
+        return SBP;
+
     }
+
 }
