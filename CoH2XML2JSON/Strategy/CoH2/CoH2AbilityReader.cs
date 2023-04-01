@@ -8,7 +8,7 @@ namespace CoH2XML2JSON.Strategy.CoH2;
 public sealed class CoH2AbilityReader : IBlueprintReader<AbilityBlueprint> {
     
     /// <inheritdoc/>
-    public AbilityBlueprint FromXml(XmlDocument xmlDocument, string modGuid, string filename, Helpers helpers) {
+    public AbilityBlueprint? FromXml(XmlDocument xmlDocument, string modGuid, string filename, Helpers helpers) {
 
         // Set the name
         var name = filename;

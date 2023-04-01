@@ -8,7 +8,7 @@ using CoH2XML2JSON.Blueprints;
 
 namespace CoH2XML2JSON.Strategy.CoH2;
 
-public class CoH2UpgradeReader : IBlueprintReader<UpgradeBlueprint> {
+public sealed class CoH2UpgradeReader : IBlueprintReader<UpgradeBlueprint> {
 
     /// <inheritdoc/>
     public UpgradeBlueprint FromXml(XmlDocument xmlDocument, string modGuid, string filename, Helpers helpers) {

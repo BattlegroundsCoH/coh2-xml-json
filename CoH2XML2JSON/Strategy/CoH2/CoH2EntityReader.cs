@@ -78,7 +78,6 @@ public sealed class CoH2EntityReader : IBlueprintReader<EntityBlueprint> {
             EBP.Health = float.Parse(health.GetValue("//float[@name='hitpoints']"));
         }
 
-
         // Load upgrades
         if (xmlDocument.SelectSingleNode(@"//template_reference[@name='exts'] [@value='ebpextensions\upgrade_ext']") is XmlElement upgrades) {
             var nodes = upgrades.SelectSubnodes("instance_reference", "upgrade");

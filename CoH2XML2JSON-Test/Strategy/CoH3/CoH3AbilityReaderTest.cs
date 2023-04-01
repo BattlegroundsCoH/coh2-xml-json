@@ -1,6 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-
-using CoH2XML2JSON.Blueprints;
+﻿using CoH2XML2JSON.Blueprints;
 using CoH2XML2JSON.Strategy;
 using CoH2XML2JSON.Strategy.CoH3;
 using CoH2XML2JSON.Strategy.Handlers;

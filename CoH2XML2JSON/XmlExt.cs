@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Xml;
 
 namespace CoH2XML2JSON; 
@@ -53,6 +54,16 @@ public static class XmlExt {
         }
         Selector(e);
         return list;
+    }
+
+    public static T[] MapTo<T>(this XmlNodeList nodes, Func<XmlElement, T> map) {
+        List<T> values = new List<T>();
+        foreach (XmlNode node in nodes) {
+            if (node is XmlElement elem) {
+                values.Add(map(elem));
+            }
+        }
+        return values.ToArray();
     }
 
 }

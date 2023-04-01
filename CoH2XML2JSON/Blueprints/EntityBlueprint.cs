@@ -141,4 +141,13 @@ public sealed class EntityBlueprint : BaseBlueprint<EntityBlueprint>, IBlueprint
         set => SetValue(value);
     }
 
+    /// <summary>
+    /// The types that apply to this entity blueprint.
+    /// </summary>
+    [DefaultValue(null)]
+    public string[]? Types {
+        get => GetValue<string[]>();
+        set => SetValue(value);
+    }
+
 }
