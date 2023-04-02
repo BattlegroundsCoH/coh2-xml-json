@@ -25,12 +25,12 @@ public sealed class CoH2SquadReader : IBlueprintReader<SquadBlueprint> {
             Name = filename,
             ModGUID = string.IsNullOrEmpty(modGuid) ? null : modGuid,
             PBGID = ulong.Parse(xmlDocument["instance"]["uniqueid"].GetAttribute("value")),
-            Display = new(xmlDocument.SelectSingleNode(@"//template_reference[@name='squadexts'] [@value='sbpextensions\squad_ui_ext']") as XmlElement)
+            Display = new(xmlDocument.SelectSingleNode(@".//template_reference[@name='squadexts'] [@value='sbpextensions\squad_ui_ext']") as XmlElement)
         };
 
         // Load squad types
-        if (xmlDocument.SelectSingleNode(@"//template_reference[@name='squadexts'] [@value='sbpextensions\squad_type_ext']") is XmlNode squadTypeList) {
-            var typeList = squadTypeList.SelectSingleNode(@"//list[@name='squad_type_list']");
+        if (xmlDocument.SelectSingleNode(@".//template_reference[@name='squadexts'] [@value='sbpextensions\squad_type_ext']") is XmlNode squadTypeList) {
+            var typeList = squadTypeList.SelectSingleNode(@".//list[@name='squad_type_list']");
             var tmpList = new List<string>();
             foreach (XmlNode type in typeList) {
                 tmpList.Add(type.Attributes["value"].Value);
@@ -41,8 +41,8 @@ public sealed class CoH2SquadReader : IBlueprintReader<SquadBlueprint> {
         }
 
         // Load squad loadout
-        if (xmlDocument.SelectSingleNode(@"//template_reference[@name='squadexts'] [@value='sbpextensions\squad_loadout_ext']") is XmlElement squadLoadout) {
-            var nodes = squadLoadout.SelectNodes("//group[@name='loadout_data']");
+        if (xmlDocument.SelectSingleNode(@".//template_reference[@name='squadexts'] [@value='sbpextensions\squad_loadout_ext']") is XmlElement squadLoadout) {
+            var nodes = squadLoadout.SelectNodes(".//group[@name='loadout_data']");
             List<Cost> costList = new();
             List<Loadout> squadLoadoutData = new();
             List<EntityBlueprint> tmpEbpCollect = new();
@@ -61,13 +61,13 @@ public sealed class CoH2SquadReader : IBlueprintReader<SquadBlueprint> {
                 SBP.SquadCost = null;
             }
             SBP.Entities = squadLoadoutData.ToArray();
-            var temp = squadLoadout.GetValue("//float [@name='squad_female_chance']");
-            SBP.FemaleChance = float.Parse(squadLoadout.GetValue("//float [@name='squad_female_chance']"), CultureInfo.InvariantCulture) / 10.0f;
+            var temp = squadLoadout.GetValue(".//float [@name='squad_female_chance']");
+            SBP.FemaleChance = float.Parse(squadLoadout.GetValue(".//float [@name='squad_female_chance']"), CultureInfo.InvariantCulture) / 10.0f;
             SBP.HasCrew = tmpEbpCollect.Any(x => x?.Drivers?.Length > 0);
         }
 
         // Load squad abilities
-        if (xmlDocument.SelectSingleNode(@"//template_reference[@name='squadexts'] [@value='sbpextensions\squad_ability_ext']") is XmlElement squadAbilities) {
+        if (xmlDocument.SelectSingleNode(@".//template_reference[@name='squadexts'] [@value='sbpextensions\squad_ability_ext']") is XmlElement squadAbilities) {
             var nodes = squadAbilities.SelectSubnodes("instance_reference", "ability");
             List<string> abps = new();
             foreach (XmlNode ability in nodes) {
@@ -79,8 +79,8 @@ public sealed class CoH2SquadReader : IBlueprintReader<SquadBlueprint> {
         }
 
         // Load squad veterancy
-        if (xmlDocument.SelectSingleNode(@"//template_reference[@name='squadexts'] [@value='sbpextensions\squad_veterancy_ext']") is XmlElement squadVet) {
-            var ranks = squadVet.SelectNodes("//group[@name='veterancy_rank']");
+        if (xmlDocument.SelectSingleNode(@".//template_reference[@name='squadexts'] [@value='sbpextensions\squad_veterancy_ext']") is XmlElement squadVet) {
+            var ranks = squadVet.SelectNodes(".//group[@name='veterancy_rank']");
             var ranks_data = new List<VeterancyLevel>();
             foreach (XmlElement rank in ranks) {
                 ranks_data.Add(new(
@@ -92,16 +92,16 @@ public sealed class CoH2SquadReader : IBlueprintReader<SquadBlueprint> {
         }
 
         // Load pickup data
-        if (xmlDocument.SelectSingleNode(@"//template_reference[@name='squadexts'] [@value='sbpextensions\squad_item_slot_ext']") is XmlElement squadItmes) {
+        if (xmlDocument.SelectSingleNode(@".//template_reference[@name='squadexts'] [@value='sbpextensions\squad_item_slot_ext']") is XmlElement squadItmes) {
             SBP.CanPickupItems = squadItmes.FindSubnode("bool", "can_pick_up").GetAttribute("value") == bool.TrueString;
             SBP.SlotPickupCapacity = int.Parse(squadItmes.FindSubnode("float", "num_slots").GetAttribute("value"));
         }
 
         // Determine if syncweapon (has team_weapon extension)
-        SBP.IsSyncWeapon = xmlDocument.SelectSingleNode(@"//template_reference[@name='squadexts'] [@value='sbpextensions\squad_team_weapon_ext']") is not null;
+        SBP.IsSyncWeapon = xmlDocument.SelectSingleNode(@".//template_reference[@name='squadexts'] [@value='sbpextensions\squad_team_weapon_ext']") is not null;
 
         // Load squad upgrades
-        if (xmlDocument.SelectSingleNode(@"//template_reference[@name='squadexts'] [@value='sbpextensions\squad_upgrade_ext']") is XmlElement squadUpgrades) {
+        if (xmlDocument.SelectSingleNode(@".//template_reference[@name='squadexts'] [@value='sbpextensions\squad_upgrade_ext']") is XmlElement squadUpgrades) {
             var nodes = squadUpgrades.SelectSubnodes("instance_reference", "upgrade");
             List<string> ubps = new();
             foreach (XmlNode upgrade in nodes) {
@@ -114,7 +114,7 @@ public sealed class CoH2SquadReader : IBlueprintReader<SquadBlueprint> {
         }
 
         // Load squad pre-applied upgrades
-        if (xmlDocument.SelectSingleNode(@"//template_reference[@name='squadexts'] [@value='sbpextensions\squad_upgrade_apply_ext']") is XmlElement squadAppliedUpgrades) {
+        if (xmlDocument.SelectSingleNode(@".//template_reference[@name='squadexts'] [@value='sbpextensions\squad_upgrade_apply_ext']") is XmlElement squadAppliedUpgrades) {
             var nodes = squadAppliedUpgrades.SelectSubnodes("instance_reference", "upgrade");
             List<string> ubps = new();
             foreach (XmlNode upgrade in nodes) {

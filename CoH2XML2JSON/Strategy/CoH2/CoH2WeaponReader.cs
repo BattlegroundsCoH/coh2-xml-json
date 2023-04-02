@@ -14,14 +14,14 @@ public sealed class CoH2WeaponReader : IBlueprintReader<WeaponBlueprint> {
             Name = filename,
             ModGUID = string.IsNullOrEmpty(modGuid) ? null : modGuid,
             PBGID = ulong.Parse(xmlDocument["instance"]["uniqueid"].GetAttribute("value")),
-            Range = float.Parse((xmlDocument.SelectSingleNode("//group[@name='range']") as XmlElement).FindSubnode("float", "max")?.GetAttribute("value") ?? "0", CultureInfo.InvariantCulture),
+            Range = float.Parse((xmlDocument.SelectSingleNode(".//group[@name='range']") as XmlElement).FindSubnode("float", "max")?.GetAttribute("value") ?? "0", CultureInfo.InvariantCulture),
             Damage = float.Parse((xmlDocument.FirstChild as XmlElement).FindSubnode("group", "damage").FindSubnode("float", "max")?.GetAttribute("value") ?? "0", CultureInfo.InvariantCulture)
         };
 
         // Get additional reload data
-        XmlElement reloadData = xmlDocument.SelectSingleNode("//group[@name='reload']") as XmlElement;
+        XmlElement reloadData = xmlDocument.SelectSingleNode(@".//group[@name='reload']") as XmlElement;
         XmlElement reloadFreqData = reloadData.FindSubnode("group", "frequency");
-        XmlElement burstData = xmlDocument.SelectSingleNode("//group[@name='burst']") as XmlElement;
+        XmlElement burstData = xmlDocument.SelectSingleNode(@".//group[@name='burst']") as XmlElement;
         XmlElement burstRateOfFireData = burstData.FindSubnode("group", "rate_of_fire");
 
         // Get the min number of shots before reloading
@@ -43,7 +43,7 @@ public sealed class CoH2WeaponReader : IBlueprintReader<WeaponBlueprint> {
         WBP.MagazineSize = canBurst ? (int)(reloadAfterShots * rate_of_fire) : reloadAfterShots;
 
         // Get callback type
-        XmlElement fireData = xmlDocument.SelectSingleNode("//group[@name='fire']") as XmlElement;
+        XmlElement fireData = xmlDocument.SelectSingleNode(@".//group[@name='fire']") as XmlElement;
         XmlElement onFireActions = fireData.FindSubnode("list", "on_fire_actions");
         foreach (XmlElement action in onFireActions) {
             if (action.Name == "template_reference" && action.GetAttribute("value") == "action\\scar_function_call") {

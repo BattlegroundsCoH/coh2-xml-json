@@ -17,8 +17,8 @@ public sealed class CoH2UpgradeReader : IBlueprintReader<UpgradeBlueprint> {
             Name = filename,
             ModGUID = string.IsNullOrEmpty(modGuid) ? null : modGuid,
             PBGID = ulong.Parse(xmlDocument["instance"]["uniqueid"].GetAttribute("value")),
-            Display = new(xmlDocument.SelectSingleNode("//group[@name='ui_info']") as XmlElement),
-            Cost = new(xmlDocument.SelectSingleNode("//group[@name='time_cost']") as XmlElement)
+            Display = new(xmlDocument.SelectSingleNode(".//group[@name='ui_info']") as XmlElement),
+            Cost = new(xmlDocument.SelectSingleNode(".//group[@name='time_cost']") as XmlElement)
         };
 
         // Load cost
@@ -27,13 +27,13 @@ public sealed class CoH2UpgradeReader : IBlueprintReader<UpgradeBlueprint> {
         }
 
         // Get ownertype
-        UBP.OwnerType = (xmlDocument.SelectSingleNode("//enum[@name='owner_type']") as XmlElement).GetAttribute("value");
+        UBP.OwnerType = (xmlDocument.SelectSingleNode(".//enum[@name='owner_type']") as XmlElement).GetAttribute("value");
         if (string.IsNullOrEmpty(UBP.OwnerType)) {
             UBP.OwnerType = null;
         }
 
         // Load slot items
-        var slot_items = xmlDocument.SelectNodes("//instance_reference[@name='slot_item']");
+        var slot_items = xmlDocument.SelectNodes(".//instance_reference[@name='slot_item']");
         List<string> items = new();
         foreach (XmlElement item in slot_items) {
             items.Add(Path.GetFileNameWithoutExtension(item.GetAttribute("value")));
@@ -43,7 +43,7 @@ public sealed class CoH2UpgradeReader : IBlueprintReader<UpgradeBlueprint> {
         }
 
         // Load Requirements
-        UBP.Requirements = Requirement.GetRequirements(xmlDocument.SelectSingleNode(@"//list[@name='requirements']") as XmlElement);
+        UBP.Requirements = Requirement.GetRequirements(xmlDocument.SelectSingleNode(@".//list[@name='requirements']") as XmlElement);
 
         // Return created UBP
         return UBP;

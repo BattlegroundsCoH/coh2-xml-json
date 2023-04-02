@@ -1,5 +1,4 @@
-﻿using CoH2XML2JSON.Blueprints;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -7,13 +6,16 @@ using System.Text.Json;
 using System.Xml;
 using System;
 
+using CoH2XML2JSON.Blueprints;
+using CoH2XML2JSON.Strategy.Handlers;
+
 namespace CoH2XML2JSON.Strategy;
 
 /// <summary>
 /// Defines a strategy for executing a translation task from XML files to a JSON database based on the specified goal.
 /// </summary>
 public interface IGameStrategy {
-
+    
     /// <summary>
     /// Executes a translation task from XML files to a JSON database based on the specified goal.
     /// </summary>
@@ -124,8 +126,9 @@ public interface IGameStrategy {
                     XmlDocument document = new XmlDocument();
                     document.Load(path);
 
-                    string name = path[(path.LastIndexOf(@"\") + 1)..^4];
-                    T? bpXml = reader.FromXml(document, path, name, helpers);
+                    string storageName = helpers.GetHelper<IPathHandler, UniquePathHandler>().GetNameFromPath(path);
+
+                    T? bpXml = reader.FromXml(document, goal.ModGuid, storageName, helpers);
                     if (bpXml is null) {
                         continue;
                     }

@@ -20,24 +20,24 @@ public sealed class CoH2AbilityReader : IBlueprintReader<AbilityBlueprint> {
         var pBGID = ulong.Parse(xmlDocument["instance"]["uniqueid"].GetAttribute("value"));
 
         // Load display
-        var display = new UI(xmlDocument.SelectSingleNode(@"//group[@name='ui_info']") as XmlElement);
+        var display = new UI(xmlDocument.SelectSingleNode(@".//group[@name='ui_info']") as XmlElement);
 
         // Load UI position
-        if (int.TryParse((xmlDocument.SelectSingleNode(@"//int[@name='ui_position']") as XmlElement).GetAttribute("value"), out int ui_pos)) {
+        if (int.TryParse((xmlDocument.SelectSingleNode(@".//int[@name='ui_position']") as XmlElement).GetAttribute("value"), out int ui_pos)) {
             display.Position = ui_pos;
         }
 
         // Load Cost
-        var cost = new Cost(xmlDocument.SelectSingleNode(@"//group[@name='cost']") as XmlElement);
+        var cost = new Cost(xmlDocument.SelectSingleNode(@".//group[@name='cost']") as XmlElement);
         if (cost.IsNull) {
             cost = null;
         }
 
         // Get activation
-        var activation = (xmlDocument.SelectSingleNode(@"//enum[@name='activation']") as XmlElement).GetAttribute("value");
+        var activation = (xmlDocument.SelectSingleNode(@"//.enum[@name='activation']") as XmlElement).GetAttribute("value");
 
         // Load Requirements
-        var requirements = Requirement.GetRequirements(xmlDocument.SelectSingleNode(@"//list[@name='requirements']") as XmlElement);
+        var requirements = Requirement.GetRequirements(xmlDocument.SelectSingleNode(@".//list[@name='requirements']") as XmlElement);
 
         // Create ability
         return new AbilityBlueprint() {

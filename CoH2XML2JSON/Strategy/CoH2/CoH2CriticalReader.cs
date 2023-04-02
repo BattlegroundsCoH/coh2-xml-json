@@ -20,7 +20,7 @@ public sealed class CoH2CriticalReader : IBlueprintReader<CriticalBlueprint> {
         var pBGID = ulong.Parse(xmlDocument["instance"]["uniqueid"].GetAttribute("value"));
 
         // Load display
-        var display = new UI(xmlDocument.SelectSingleNode(@"//template_reference[@name='ui_info']") as XmlElement);
+        var display = new UI(xmlDocument.SelectSingleNode(@".//template_reference[@name='ui_info']") as XmlElement);
 
         return new CriticalBlueprint() {
             Name = filename,

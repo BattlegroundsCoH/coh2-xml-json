@@ -27,7 +27,13 @@ public sealed class VariantSelector : IBlueprintHelperHandler {
     /// <returns>The selected variant as an <see cref="XmlElement"/>, or null if the variant is not found.</returns>
     public XmlElement? Select(XmlDocument document) {
         var node = document.SelectSingleNode($@"//variant[@name='{this.Variant}']");
-        return node as XmlElement;
+        if (node is null) {
+            return null;
+        }
+        XmlDocument newDocument = new XmlDocument();
+        newDocument.LoadXml(node.OuterXml);
+        XmlElement element = newDocument.FirstChild as XmlElement ?? throw new System.Exception();
+        return element;
     }
 
 }

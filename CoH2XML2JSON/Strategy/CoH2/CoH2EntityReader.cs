@@ -18,8 +18,8 @@ public sealed class CoH2EntityReader : IBlueprintReader<EntityBlueprint> {
             Name  = filename ,
             ModGUID = string.IsNullOrEmpty(modGuid) ? null : modGuid,
             PBGID = ulong.Parse(xmlDocument["instance"]["uniqueid"].GetAttribute("value")),
-            Display = new(xmlDocument.SelectSingleNode(@"//template_reference[@name='exts'] [@value='ebpextensions\ui_ext']") as XmlElement),
-            Cost = new(xmlDocument.SelectSingleNode(@"//template_reference[@name='exts'] [@value='ebpextensions\cost_ext']") as XmlElement)
+            Display = new(xmlDocument.SelectSingleNode(@".//template_reference[@name='exts'] [@value='ebpextensions\ui_ext']") as XmlElement),
+            Cost = new(xmlDocument.SelectSingleNode(@".//template_reference[@name='exts'] [@value='ebpextensions\cost_ext']") as XmlElement)
         };
 
         // Load Cost
@@ -28,7 +28,7 @@ public sealed class CoH2EntityReader : IBlueprintReader<EntityBlueprint> {
         }
 
         // Load abilities
-        if (xmlDocument.SelectSingleNode(@"//template_reference[@name='exts'] [@value='ebpextensions\ability_ext']") is XmlElement abilities) {
+        if (xmlDocument.SelectSingleNode(@".//template_reference[@name='exts'] [@value='ebpextensions\ability_ext']") is XmlElement abilities) {
             var nodes = abilities.SelectSubnodes("instance_reference", "ability");
             List<string> abps = new();
             foreach (XmlNode ability in nodes) {
@@ -40,7 +40,7 @@ public sealed class CoH2EntityReader : IBlueprintReader<EntityBlueprint> {
         }
 
         // Load drivers (if any)
-        if (xmlDocument.SelectSingleNode(@"//template_reference[@name='exts'] [@value='ebpextensions\recrewable_ext']") is XmlElement recrewable) {
+        if (xmlDocument.SelectSingleNode(@".//template_reference[@name='exts'] [@value='ebpextensions\recrewable_ext']") is XmlElement recrewable) {
             List<EBPCrew> crews = new();
             var nodes = recrewable.SelectSubnodes("group", "race_data");
             foreach (XmlElement driver in nodes) {
@@ -59,8 +59,8 @@ public sealed class CoH2EntityReader : IBlueprintReader<EntityBlueprint> {
         }
 
         // Load hardpoints (if any)
-        if (xmlDocument.SelectSingleNode(@"//template_reference[@name='exts'] [@value='ebpextensions\combat_ext']") is XmlElement hardpoints) {
-            var nodes = hardpoints.SelectNodes("//instance_reference[@name='weapon']");
+        if (xmlDocument.SelectSingleNode(@".//template_reference[@name='exts'] [@value='ebpextensions\combat_ext']") is XmlElement hardpoints) {
+            var nodes = hardpoints.SelectNodes(".//instance_reference[@name='weapon']");
             List<string> wpbs = new();
             foreach (XmlNode wpn in nodes) {
                 var hardpoint = wpn.Attributes["value"].Value;
@@ -74,12 +74,12 @@ public sealed class CoH2EntityReader : IBlueprintReader<EntityBlueprint> {
         }
 
         // Get hitpoints (if any)
-        if (xmlDocument.SelectSingleNode(@"//template_reference[@name='exts'] [@value='ebpextensions\health_ext']") is XmlElement health) {
-            EBP.Health = float.Parse(health.GetValue("//float[@name='hitpoints']"));
+        if (xmlDocument.SelectSingleNode(@".//template_reference[@name='exts'] [@value='ebpextensions\health_ext']") is XmlElement health) {
+            EBP.Health = float.Parse(health.GetValue(".//float[@name='hitpoints']"));
         }
 
         // Load upgrades
-        if (xmlDocument.SelectSingleNode(@"//template_reference[@name='exts'] [@value='ebpextensions\upgrade_ext']") is XmlElement upgrades) {
+        if (xmlDocument.SelectSingleNode(@".//template_reference[@name='exts'] [@value='ebpextensions\upgrade_ext']") is XmlElement upgrades) {
             var nodes = upgrades.SelectSubnodes("instance_reference", "upgrade");
             List<string> ubps = new();
             foreach (XmlNode ability in nodes) {
@@ -91,9 +91,8 @@ public sealed class CoH2EntityReader : IBlueprintReader<EntityBlueprint> {
             EBP.UpgradeCapacity = (int)float.Parse(upgrades.FindSubnode("float", "number_of_standard_slots").GetAttribute("value"));
         }
 
-
         // Load applied upgrades
-        if (xmlDocument.SelectSingleNode(@"//template_reference[@name='exts'] [@value='ebpextensions\upgrade_apply_ext']") is XmlElement appliedUpgrades) {
+        if (xmlDocument.SelectSingleNode(@".//template_reference[@name='exts'] [@value='ebpextensions\upgrade_apply_ext']") is XmlElement appliedUpgrades) {
             var nodes = appliedUpgrades.SelectSubnodes("instance_reference", "upgrade");
             List<string> ubps = new();
             foreach (XmlNode ability in nodes) {

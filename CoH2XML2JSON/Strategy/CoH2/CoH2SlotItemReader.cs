@@ -15,10 +15,10 @@ public sealed class CoH2SlotItemReader : IBlueprintReader<SlotItemBlueprint> {
             Name = filename,
             ModGUID = string.IsNullOrEmpty(modGuid) ? null : modGuid,
             PBGID = ulong.Parse(xmlDocument["instance"]["uniqueid"].GetAttribute("value")),
-            Display = new(xmlDocument.SelectSingleNode("//group[@name='ui_info']") as XmlElement),
-            SlotSize = (int)float.Parse((xmlDocument.SelectSingleNode("//float[@name='slot_size']") as XmlElement)?.GetAttribute("value") ?? "0", CultureInfo.InvariantCulture),
+            Display = new(xmlDocument.SelectSingleNode(".//group[@name='ui_info']") as XmlElement),
+            SlotSize = (int)float.Parse((xmlDocument.SelectSingleNode(".//float[@name='slot_size']") as XmlElement)?.GetAttribute("value") ?? "0", CultureInfo.InvariantCulture),
             // Get weapon
-            WPB = Path.GetFileNameWithoutExtension((xmlDocument.SelectSingleNode("//instance_reference[@name='weapon']") as XmlElement).GetAttribute("value"))
+            WPB = Path.GetFileNameWithoutExtension((xmlDocument.SelectSingleNode(".//instance_reference[@name='weapon']") as XmlElement).GetAttribute("value"))
         };
 
         if (string.IsNullOrEmpty(SIB.WPB)) {

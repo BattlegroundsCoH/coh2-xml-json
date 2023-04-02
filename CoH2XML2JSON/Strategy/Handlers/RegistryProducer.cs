@@ -9,7 +9,7 @@ namespace CoH2XML2JSON.Strategy.Handlers;
 /// A blueprint post handler that collects blueprints of a specific type <typeparamref name="TBlueprint"/> and makes them available through the <see cref="GetBlueprints"/> method.
 /// </summary>
 /// <typeparam name="TBlueprint">The type of blueprint to collect.</typeparam>
-public sealed class RegistryProducer<TBlueprint> : IBlueprintPostHandler where TBlueprint : IBlueprint {
+public class RegistryProducer<TBlueprint> : IBlueprintPostHandler where TBlueprint : IBlueprint {
     
     private readonly ICollection<TBlueprint> _blueprints;
 
@@ -35,7 +35,7 @@ public sealed class RegistryProducer<TBlueprint> : IBlueprintPostHandler where T
     /// <param name="blueprint">The blueprint to handle.</param>
     /// <param name="filepath">The path to the file containing the blueprint.</param>
     /// <returns>The same blueprint that was passed in.</returns>
-    public T Handle<T>(T blueprint, string filepath) where T : IBlueprint {
+    public virtual T Handle<T>(T blueprint, string filepath) where T : IBlueprint {
         if (blueprint is TBlueprint bp) {
             _blueprints.Add(bp);
         }

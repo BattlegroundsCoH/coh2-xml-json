@@ -32,19 +32,19 @@ public sealed class CoH3AbilityReader : IBlueprintReader<AbilityBlueprint> {
         XmlElement? abilityBag = xmlDocument["group"];
 
         // Load cost
-        ABP.Cost = new Cost(abilityBag?.SelectSingleNode(@"//enum_table[@name='cost_to_player']") as XmlElement);
+        ABP.Cost = new Cost(abilityBag?.SelectSingleNode(@".//enum_table[@name='cost_to_player']") as XmlElement);
         if (ABP.Cost.IsNull) {
             ABP.Cost = null;
         }
 
         // Load UI
-        ABP.Display = new UI(abilityBag?.SelectSingleNode(@"//group[@name='ui_info']") as XmlElement);
+        ABP.Display = new UI(abilityBag?.SelectSingleNode(@".//group[@name='ui_info']") as XmlElement);
         if (ABP.Display is not null) {
-            ABP.Display.Position = UI.GetUIPosition(abilityBag?.SelectSingleNode(@"//group[@name='ui_position']") as XmlElement);
+            ABP.Display.Position = UI.GetUIPosition(abilityBag?.SelectSingleNode(@".//group[@name='ui_position']") as XmlElement);
         }
 
         // Set activation
-        ABP.Activation = (abilityBag?.SelectSingleNode(@"//enum[@name='activation']") as XmlElement)?.GetAttribute("value") ?? null;
+        ABP.Activation = (abilityBag?.SelectSingleNode(@".//enum[@name='activation']") as XmlElement)?.GetAttribute("value") ?? null;
 
         return ABP;
 

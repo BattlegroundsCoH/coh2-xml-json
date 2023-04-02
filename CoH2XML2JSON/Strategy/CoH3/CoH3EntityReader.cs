@@ -27,8 +27,8 @@ public sealed class CoH3EntityReader : IBlueprintReader<EntityBlueprint> {
             Name = filename,
             ModGUID = string.IsNullOrEmpty(modGuid) ? null : modGuid,
             PBGID = ulong.Parse(xmlDocument["uniqueid"]?.GetAttribute("value") ?? "0"),
-            Cost = new Cost(xmlDocument?.SelectSingleNode(@"//template_reference[@name='exts'] [@value='ebpextensions\cost_ext']") as XmlElement),
-            Display = new UI(xmlDocument?.SelectSingleNode(@"//template_reference[@name='exts'] [@value='ebpextensions\ui_ext']") as XmlElement)
+            Cost = new Cost(xmlDocument?.SelectSingleNode(@".//template_reference[@name='exts'] [@value='ebpextensions\cost_ext']") as XmlElement),
+            Display = new UI(xmlDocument?.SelectSingleNode(@".//template_reference[@name='exts'] [@value='ebpextensions\ui_ext']") as XmlElement)
         };
 
         // Nullify cost
@@ -37,30 +37,30 @@ public sealed class CoH3EntityReader : IBlueprintReader<EntityBlueprint> {
         }
 
         // Collect abilities
-        EBP.Abilities = xmlDocument?.SelectSingleNode(@"//template_reference[@name='exts'] [@value='ebpextensions\ability_ext']")
-            ?.SelectNodes(@"//instance_reference[@name='ability']")?.MapTo(x => x.GetAttribute("value")) ?? null;
+        EBP.Abilities = xmlDocument?.SelectSingleNode(@".//template_reference[@name='exts'] [@value='ebpextensions\ability_ext']")
+            ?.SelectNodes(@".//instance_reference[@name='ability']")?.MapTo(x => x.GetAttribute("value")) ?? null;
 
         // Collect hardpoints
-        EBP.Hardpoints = xmlDocument?.SelectSingleNode(@"//template_reference[@name='exts'] [@value='ebpextensions\combat_ext']")
-            ?.SelectNodes(@"//group[@name='weapon']")?.MapTo(x => 
-                ((x.SelectSingleNode(@"//instance_reference[@name='ebp']") as XmlElement)?.GetAttribute("value")) ?? string.Empty)
+        EBP.Hardpoints = xmlDocument?.SelectSingleNode(@".//template_reference[@name='exts'] [@value='ebpextensions\combat_ext']")
+            ?.SelectNodes(@".//group[@name='weapon']")?.MapTo(x => 
+                ((x.SelectSingleNode(@".//instance_reference[@name='ebp']") as XmlElement)?.GetAttribute("value")) ?? string.Empty)
             .Where(x => !string.IsNullOrEmpty(x)).ToArray() ?? null;
 
         // Collect upgrades
-        EBP.Upgrades = xmlDocument?.SelectSingleNode(@"//template_reference[@name='exts'] [@value='ebpextensions\upgrade_ext']")
-            ?.SelectNodes(@"//instance_reference[@name='upgrade']")?.MapTo(x => x.GetAttribute("value")) ?? null;
+        EBP.Upgrades = xmlDocument?.SelectSingleNode(@".//template_reference[@name='exts'] [@value='ebpextensions\upgrade_ext']")
+            ?.SelectNodes(@".//instance_reference[@name='upgrade']")?.MapTo(x => x.GetAttribute("value")) ?? null;
 
         // Collect upgrade capacity
-        EBP.UpgradeCapacity = int.Parse((xmlDocument?.SelectSingleNode(@"//template_reference[@name='exts'] [@value='ebpextensions\entity_inventory_ext']")
-            ?.SelectSingleNode(@"//int[@name='upgrade']") as XmlElement)?.GetAttribute("value") ?? "0");
+        EBP.UpgradeCapacity = int.Parse((xmlDocument?.SelectSingleNode(@".//template_reference[@name='exts'] [@value='ebpextensions\entity_inventory_ext']")
+            ?.SelectSingleNode(@".//int[@name='upgrade']") as XmlElement)?.GetAttribute("value") ?? "0");
 
         // Collect types
-        EBP.Types = xmlDocument?.SelectSingleNode(@"//template_reference[@name='exts'] [@value='ebpextensions\type_ext']")
-            ?.SelectNodes(@"//enum[@name='unit_type']")?.MapTo(x => x.GetAttribute("value")) ?? null;
+        EBP.Types = xmlDocument?.SelectSingleNode(@".//template_reference[@name='exts'] [@value='ebpextensions\type_ext']")
+            ?.SelectNodes(@".//enum[@name='unit_type']")?.MapTo(x => x.GetAttribute("value")) ?? null;
         
         // Get hitpoints (if any)
-        if (xmlDocument?.SelectSingleNode(@"//template_reference[@name='exts'] [@value='ebpextensions\health_ext']") is XmlElement health) {
-            EBP.Health = float.Parse(health.GetValue("//float[@name='hitpoints']"));
+        if (xmlDocument?.SelectSingleNode(@".//template_reference[@name='exts'] [@value='ebpextensions\health_ext']") is XmlElement health) {
+            EBP.Health = float.Parse(health.GetValue(".//float[@name='hitpoints']"));
         }
 
         // Return entities
