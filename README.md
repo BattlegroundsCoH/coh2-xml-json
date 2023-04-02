@@ -36,3 +36,5 @@ Note that CoH3 does not have the same concept of critical and slot item blueprin
 CoH3 also introduces the concept of inheritance and variants. The tool has been updated to support this. Inheritance thus picks the first defined value found. Meaning the child value is chosen if defined; Otherwise the parent value is picked. A value is always stored in the database, even when the child value is not defined in the read .xml file.
 
 By default the CoH3 `default` variant is picked. A specific variant can be picked by specifying it with the `-variant <Variant-Name>` parameter.
+
+The .xml files for CoH3 are not available in a folder and will have to be extracted from the `ReferenceAttrib.sga` file located in `anvil/archives`.
