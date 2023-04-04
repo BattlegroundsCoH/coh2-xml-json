@@ -41,6 +41,7 @@ public sealed class ScarPathHandler : IPathHandler {
                 "germans" => "GERMANS",
                 "americans" => "AMERICANS",
                 "afrika_korps" => "AFRIKA_KORPS",
+                "common" => "COMMON",
                 _ => null
             };
             if (!string.IsNullOrEmpty(pushName)) {

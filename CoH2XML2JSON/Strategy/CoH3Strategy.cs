@@ -25,7 +25,6 @@ public sealed class CoH3Strategy : IGameStrategy {
     };
 
     private readonly ArmyHandler armyHandler = new ArmyHandler(racebps);
-    private readonly ParentHandler parentHandler = new ParentHandler();
     private readonly ScarPathHandler scarPathHandler = new ScarPathHandler();
 
     /// <inheritdoc/>
@@ -34,6 +33,9 @@ public sealed class CoH3Strategy : IGameStrategy {
 
         // Create variant helper
         VariantSelector variant = new VariantSelector(goal.Variant);
+
+        // Create parent handler
+        ParentHandler parentHandler = new ParentHandler(scarPathHandler);
 
         // Create entity producer
         RegistryProducer<EntityBlueprint> entityRegistry = new RegistryProducer<EntityBlueprint>();

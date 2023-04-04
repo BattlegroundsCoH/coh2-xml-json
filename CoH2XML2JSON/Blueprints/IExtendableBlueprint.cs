@@ -17,4 +17,10 @@ public interface IExtendableBlueprint<T> where T : IBlueprint {
     /// <returns>The <typeparamref name="T"/> being extended by this <typeparamref name="T"/> instance.</returns>
     T? GetParent();
 
+    /// <summary>
+    /// Sets the parent blueprint.
+    /// </summary>
+    /// <param name="parent">The blueprint of the parent to extend with.</param>
+    void ExtendWith(T parent);
+
 }

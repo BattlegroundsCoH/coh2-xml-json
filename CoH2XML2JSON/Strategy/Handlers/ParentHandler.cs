@@ -1,7 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Xml;
 
 using CoH2XML2JSON.Blueprints;
+using CoH2XML2JSON.Blueprints.Relations;
 
 namespace CoH2XML2JSON.Strategy.Handlers;
 
@@ -10,6 +13,12 @@ namespace CoH2XML2JSON.Strategy.Handlers;
 /// Implements the <see cref="IBlueprintPostDatabaseHandler"/> and <see cref="IBlueprintXmlHandler"/> interfaces.
 /// </summary>
 public sealed class ParentHandler : IBlueprintPostDatabaseHandler, IBlueprintXmlHandler {
+
+    private readonly IPathHandler pathHandler;
+
+    public ParentHandler(IPathHandler pathHandler) {
+        this.pathHandler = pathHandler;
+    }
 
     /// <summary>
     /// Handles assigning parent blueprint filepaths to an extendable blueprint.
@@ -26,7 +35,9 @@ public sealed class ParentHandler : IBlueprintPostDatabaseHandler, IBlueprintXml
         if (blueprint is IExtendableBlueprint<T> extendable) {
             var xmlVariant = helpers.GetHelper<VariantSelector>().Select(xmlDoc);
             if (xmlVariant is not null && xmlVariant.SelectSingleNode(@"//instance_reference[@name='parent_pbg']") is XmlElement parentpbg) {
-                extendable.ParentFilepath = string.IsNullOrEmpty(parentpbg.GetAttribute("value")) ? null : parentpbg.GetAttribute("value");
+                if ((string.IsNullOrEmpty(parentpbg.GetAttribute("value")) ? null : parentpbg.GetAttribute("value")) is string parentPath) {
+                    extendable.ParentFilepath = pathHandler.GetNameFromPath(parentPath);
+                }
             }
         }
         return blueprint;
@@ -42,9 +53,16 @@ public sealed class ParentHandler : IBlueprintPostDatabaseHandler, IBlueprintXml
     /// Finds the parent blueprint for each extendable blueprint in the source list and assigns it based on the read XML value.
     /// </remarks>
     public IList<T> Handle<T>(IList<T> source) where T : IBlueprint {
+        Dictionary<string, T> common = new Dictionary<string, T>();
         for (int i = 0; i < source.Count; i++) {
-            if (source[i] is IExtendableBlueprint<T> extendable && !string.IsNullOrEmpty(extendable.ParentFilepath)) {
-                // TODO: Find parent and assign based on the instance_reference value read by the Handle<T>(XmlDocument xmlDoc, T blueprint, Helpers helpers) function
+            if (source[i] is BaseBlueprint<T> extendable && !string.IsNullOrEmpty(extendable.ParentFilepath)) {
+                if (common.TryGetValue(extendable.ParentFilepath, out T? parent)) {
+                    extendable.ExtendWith(parent);
+                } else if (source.FirstOrDefault(x => x.Name == extendable.ParentFilepath) is T foundParent) {
+                    extendable.ExtendWith(common[extendable.ParentFilepath] = foundParent);
+                } else {
+                    Console.WriteLine("Failed finding parent blueprint '' to assign to ''");
+                }
             }
         }
         return source;
