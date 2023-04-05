@@ -26,10 +26,11 @@ public sealed class CoH3Strategy : IGameStrategy {
 
     private readonly ArmyHandler armyHandler = new ArmyHandler(racebps);
     private readonly ScarPathHandler scarPathHandler = new ScarPathHandler();
+    private readonly WeaponCategoriserHandler weaponCategoriserHandler = new WeaponCategoriserHandler();
 
     /// <inheritdoc/>
     [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
-    public void Execute(Goal goal) {
+    public void Execute(Goal goal, IStrategyListener listener) {
 
         // Create variant helper
         VariantSelector variant = new VariantSelector(goal.Variant);
@@ -41,11 +42,11 @@ public sealed class CoH3Strategy : IGameStrategy {
         RegistryProducer<EntityBlueprint> entityRegistry = new RegistryProducer<EntityBlueprint>();
 
         // Create database
-        IGameStrategy.CreateDatabase(goal, $"{goal.ModName}-abp-db-coh3.json", "abilities", abilityReader, variant, scarPathHandler, armyHandler, parentHandler);
-        IGameStrategy.CreateDatabase(goal, $"{goal.ModName}-sbp-db-coh3.json", "ebps\\races", squadReader, variant, scarPathHandler, armyHandler, entityRegistry, parentHandler);
-        IGameStrategy.CreateDatabase(goal, $"{goal.ModName}-ebp-db-coh3.json", "sbps\\races", entityReader, variant, scarPathHandler, armyHandler, entityRegistry.CreateConsumer(), parentHandler);
-        IGameStrategy.CreateDatabase(goal, $"{goal.ModName}-ubp-db-coh3.json", "upgrade", upgradeReader, variant, scarPathHandler, parentHandler);
-        IGameStrategy.CreateDatabase(goal, $"{goal.ModName}-wbp-db-coh3.json", "weapon", weaponReader, variant, scarPathHandler, parentHandler);
+        IGameStrategy.CreateDatabase(goal, listener, $"{goal.ModName}-abp-db-coh3.json", "abilities", abilityReader, variant, scarPathHandler, armyHandler, parentHandler);
+        IGameStrategy.CreateDatabase(goal, listener, $"{goal.ModName}-sbp-db-coh3.json", "ebps\\races", entityReader, variant, scarPathHandler, armyHandler, entityRegistry, parentHandler);
+        IGameStrategy.CreateDatabase(goal, listener, $"{goal.ModName}-ebp-db-coh3.json", "sbps\\races", squadReader, variant, scarPathHandler, armyHandler, entityRegistry.CreateConsumer(), parentHandler);
+        IGameStrategy.CreateDatabase(goal, listener, $"{goal.ModName}-ubp-db-coh3.json", "upgrade", upgradeReader, variant, scarPathHandler, parentHandler);
+        IGameStrategy.CreateDatabase(goal, listener, $"{goal.ModName}-wbp-db-coh3.json", "weapon", weaponReader, variant, scarPathHandler, parentHandler, weaponCategoriserHandler);
 
     }
 

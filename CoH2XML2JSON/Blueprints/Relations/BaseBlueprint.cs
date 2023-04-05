@@ -1,4 +1,6 @@
-﻿using CoH2XML2JSON.Blueprints.Constraints;
+﻿using System.Text.Json.Serialization;
+
+using CoH2XML2JSON.Blueprints.Constraints;
 
 namespace CoH2XML2JSON.Blueprints.Relations;
 
@@ -9,6 +11,7 @@ namespace CoH2XML2JSON.Blueprints.Relations;
 public abstract class BaseBlueprint<T> : Extendable<BaseBlueprint<T>>, IExtendableBlueprint<T> where T : IBlueprint {
 
     /// <inheritdoc/>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? ParentFilepath { get; set; }
 
     /// <inheritdoc/>

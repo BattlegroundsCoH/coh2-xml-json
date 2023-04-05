@@ -20,7 +20,8 @@ public interface IGameStrategy {
     /// Executes a translation task from XML files to a JSON database based on the specified goal.
     /// </summary>
     /// <param name="goal">The goal object that specifies the translation task.</param>
-    void Execute(Goal goal);
+    /// <param name="listener">A listener instance that keeps track of the read blueprints</param>
+    void Execute(Goal goal, IStrategyListener listener);
 
     /// <summary>
     /// Saves the given collection of <see cref="IBlueprint"/> objects to a JSON file with the given name in the given output directory.
@@ -58,10 +59,13 @@ public interface IGameStrategy {
     /// This method calls <see cref="GenericDatabaseGet{T}(Goal, string, string, IBlueprintReader{T}, IBlueprintHandler[])"/> to parse the XML files and then calls <see cref="GenericDatabaseSave{T}(Goal, string, IEnumerable{T})"/> to save the parsed <see cref="IBlueprint"/> objects to JSON.
     /// </remarks>
     [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.Serialize<TValue>(TValue, JsonSerializerOptions)")]
-    public static void CreateDatabase<T>(Goal goal, string dbname, string lookpath, IBlueprintReader<T> reader, params IBlueprintHandler[] handlers) where T : IBlueprint {
+    public static void CreateDatabase<T>(Goal goal, IStrategyListener listener, string dbname, string lookpath, IBlueprintReader<T> reader, params IBlueprintHandler[] handlers) where T : IBlueprint {
 
         // Get collection
         var bps = GenericDatabaseGet(goal, dbname, lookpath, reader, handlers);
+
+        // Notify listener
+        listener.Notify(bps);
 
         // Save it
         GenericDatabaseSave(goal, dbname, bps);
@@ -81,10 +85,12 @@ public interface IGameStrategy {
     /// This method calls <see cref="GenericDatabaseGet{T}(Goal, string, string, IBlueprintReader{T}, IBlueprintHandler[])"/> to parse the XML files and then calls <see cref="GenericDatabaseSave{T}(Goal, string, IEnumerable{T})"/> to save the parsed <see cref="IBlueprint"/> objects to JSON.
     /// </remarks>
     [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.Serialize<TValue>(TValue, JsonSerializerOptions)")]
-    public static void CreateDatabase<T>(Goal goal, string dbname, IList<string> lookpath, IBlueprintReader<T> reader, params IBlueprintHandler[] handlers) where T : IBlueprint {
+    public static void CreateDatabase<T>(Goal goal, IStrategyListener listener, string dbname, IList<string> lookpath, IBlueprintReader<T> reader, params IBlueprintHandler[] handlers) where T : IBlueprint {
         List<T> bps = new List<T>();
         foreach (var path in lookpath) {
-            bps.AddRange(GenericDatabaseGet(goal, dbname, path, reader, handlers));
+            var pathBps = GenericDatabaseGet(goal, dbname, path, reader, handlers);
+            listener.Notify(pathBps);
+            bps.AddRange(pathBps);
         }
         GenericDatabaseSave(goal, dbname, bps);
     }
@@ -151,8 +157,7 @@ public interface IGameStrategy {
         } catch (Exception e) {
 
             // Log error and wait for user to exit
-            Console.WriteLine(e.ToString());
-            Console.ReadLine();
+            Console.Error.WriteLine(e.ToString());
 
         }
 

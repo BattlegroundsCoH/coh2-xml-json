@@ -29,22 +29,23 @@ public sealed class CoH2Strategy : IGameStrategy {
 
     private readonly ArmyHandler armyHandler = new ArmyHandler(racebps);
     private readonly UniquePathHandler uniquePathHandler = new UniquePathHandler();
+    private readonly WeaponCategoriserHandler weaponCategoriserHandler = new WeaponCategoriserHandler();
 
     /// <inheritdoc/>
     [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
-    public void Execute(Goal goal) {
+    public void Execute(Goal goal, IStrategyListener listener) {
 
         // Create entity producer
         RegistryProducer<EntityBlueprint> entityRegistry = new RegistryProducer<EntityBlueprint>();
 
         // Create databases
-        IGameStrategy.CreateDatabase(goal, $"{goal.ModName}-abp-db-coh2.json", "abilities", abilityReader, uniquePathHandler, armyHandler);
-        IGameStrategy.CreateDatabase(goal, $"{goal.ModName}-cbp-db-coh2.json", "critical", criticalReader, uniquePathHandler);
-        IGameStrategy.CreateDatabase(goal, $"{goal.ModName}-ebp-db-coh2.json", new[] { "ebps\\races", "ebps\\gameplay" }, entityReader, uniquePathHandler, armyHandler, entityRegistry);
-        IGameStrategy.CreateDatabase(goal, $"{goal.ModName}-ebp-db-coh2.json", "sbps\\races", squadReader, uniquePathHandler, armyHandler, entityRegistry.CreateConsumer());
-        IGameStrategy.CreateDatabase(goal, $"{goal.ModName}-cbp-db-coh2.json", "slot_item", slotItemReader, uniquePathHandler, armyHandler);
-        IGameStrategy.CreateDatabase(goal, $"{goal.ModName}-cbp-db-coh2.json", "upgrade", upgradeReader, uniquePathHandler);
-        IGameStrategy.CreateDatabase(goal, $"{goal.ModName}-cbp-db-coh2.json", "weapon", weaponReader, uniquePathHandler);
+        IGameStrategy.CreateDatabase(goal, listener, $"{goal.ModName}-abp-db-coh2.json", "abilities", abilityReader, uniquePathHandler, armyHandler);
+        IGameStrategy.CreateDatabase(goal, listener, $"{goal.ModName}-cbp-db-coh2.json", "critical", criticalReader, uniquePathHandler);
+        IGameStrategy.CreateDatabase(goal, listener, $"{goal.ModName}-ebp-db-coh2.json", new[] { "ebps\\races", "ebps\\gameplay" }, entityReader, uniquePathHandler, armyHandler, entityRegistry);
+        IGameStrategy.CreateDatabase(goal, listener, $"{goal.ModName}-ebp-db-coh2.json", "sbps\\races", squadReader, uniquePathHandler, armyHandler, entityRegistry.CreateConsumer());
+        IGameStrategy.CreateDatabase(goal, listener, $"{goal.ModName}-cbp-db-coh2.json", "slot_item", slotItemReader, uniquePathHandler, armyHandler);
+        IGameStrategy.CreateDatabase(goal, listener, $"{goal.ModName}-cbp-db-coh2.json", "upgrade", upgradeReader, uniquePathHandler);
+        IGameStrategy.CreateDatabase(goal, listener, $"{goal.ModName}-cbp-db-coh2.json", "weapon", weaponReader, uniquePathHandler, weaponCategoriserHandler);
 
     }
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Text.Json.Serialization;
 
 namespace CoH2XML2JSON.Blueprints.Relations;
 
@@ -13,6 +14,7 @@ public abstract class Extendable<T> where T : Extendable<T> {
     private readonly Dictionary<string, object?> _impl = new();
 
     /// <inheritdoc/>
+    [JsonIgnore]
     public T? Extends { get; set; }
 
     private TFieldType? GetSuperValue<TFieldType>(string key)

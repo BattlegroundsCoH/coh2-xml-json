@@ -5,6 +5,7 @@ using System.Linq;
 using System.Diagnostics.CodeAnalysis;
 
 using CoH2XML2JSON.Strategy;
+using CoH2XML2JSON.Strategy.Listeners;
 
 namespace CoH2XML2JSON;
 
@@ -98,7 +99,7 @@ public class Program {
         File.WriteAllText("last.json", JsonSerializer.Serialize(goal));
 
         IGameStrategy strategy = isCoH3 ? new CoH3Strategy() : new CoH2Strategy();
-        strategy.Execute(goal);
+        strategy.Execute(goal, new NullListener());
 
         Console.WriteLine();
 
