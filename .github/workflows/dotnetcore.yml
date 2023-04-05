@@ -1,4 +1,4 @@
-name: .NET Core
+name: .NET Core Release
 
 on: [push]
 
@@ -6,7 +6,7 @@ permissions:
   contents: write
 
 jobs:
-  build:
+  build-artifact:
 
     runs-on: ubuntu-latest
 
@@ -15,21 +15,21 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 6.0.100
+        dotnet-version: 7.0.x
     - name: Build for Windows
       run: dotnet publish -r win-x64 --configuration Release
     - name: Upload artifact - Windows
       uses: actions/upload-artifact@v1.0.0
       with:
         name: CoH2XML2JSON.exe 
-        path: bin/Release/net6.0/win-x64/publish/CoH2XML2JSON.exe
+        path: CoH2XML2JSON/bin/Release/net7.0/win-x64/publish/CoH2XML2JSON.exe
     - name: Make Release
       uses: softprops/action-gh-release@v1
       if: startsWith(github.ref, 'refs/tags/')
       with:
         token: $$ {{ secrets.BG_RELEASE_SECRET }}
         files: |
-          bin/Release/net6.0/win-x64/publish/CoH2XML2JSON.exe
+          CoH2XML2JSON/bin/Release/net7.0/win-x64/publish/CoH2XML2JSON.exe
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     
