@@ -38,6 +38,9 @@
     <None Update="Xml\coh3\ebps\races\british_africa\tw_at_gun_6pdr_africa_uk.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Xml\coh3\ebps\races\british_africa\weapons\small_arms\single_fire\rifle\w_lee_enfield_tommy_africa_uk.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Xml\coh3\sbps\races\german\bersaglieri_ger.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

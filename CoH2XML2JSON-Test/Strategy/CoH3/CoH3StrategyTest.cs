@@ -55,7 +55,7 @@ public class CoH3StrategyTest {
                     Assert.That(abps, Has.Count.EqualTo(2), "Expected 2 abilities");
                 })
                 .AssertBlueprints<EntityBlueprint>(ebps => {
-                    Assert.That(ebps, Has.Count.EqualTo(3), "Expected 3 entities");
+                    Assert.That(ebps, Has.Count.EqualTo(4), "Expected 4 entities");
                 })
                 .AssertBlueprints<SquadBlueprint>(sbps => {
                     Assert.That(sbps, Has.Count.EqualTo(4), "Expected 4 squads");
