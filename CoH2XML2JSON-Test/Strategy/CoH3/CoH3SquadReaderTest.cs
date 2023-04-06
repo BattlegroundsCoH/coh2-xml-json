@@ -85,7 +85,7 @@ public class CoH3SquadReaderTest {
 
             Assert.That(tiger.Upgrades, Is.Not.Null);
             Assert.That(tiger.Upgrades!.Length, Is.EqualTo(1));
-            Assert.That(tiger.Upgrades![0], Is.EqualTo("upgrade\\german\\vehicle\\mg42_tiger_ger"));
+            Assert.That(tiger.Upgrades![0], Is.EqualTo("UPGRADE.GERMANS.MG42_TIGER_GER"));
 
             Assert.That(tiger.Types, Is.Not.Null);
             Assert.That(tiger.Types.Length, Is.EqualTo(3));

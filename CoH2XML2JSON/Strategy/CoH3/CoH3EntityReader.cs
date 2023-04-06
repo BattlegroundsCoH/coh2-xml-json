@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Linq;
 using System.Xml;
 
@@ -14,6 +15,9 @@ public sealed class CoH3EntityReader : IBlueprintReader<EntityBlueprint> {
 
         // Get variant helper
         VariantSelector variant = helpers.GetHelper<VariantSelector>();
+
+        // Get path helper
+        IPathHandler pathHandler = helpers.GetHelper<IPathHandler>();
 
         // Pick
         var xmlDocument = variant.Select(xml);
@@ -38,17 +42,17 @@ public sealed class CoH3EntityReader : IBlueprintReader<EntityBlueprint> {
 
         // Collect abilities
         EBP.Abilities = xmlDocument?.SelectSingleNode(@".//template_reference[@name='exts'] [@value='ebpextensions\ability_ext']")
-            ?.SelectNodes(@".//instance_reference[@name='ability']")?.MapTo(x => x.GetAttribute("value")) ?? null;
+            ?.SelectNodes(@".//instance_reference[@name='ability']")?.MapTo(x => pathHandler.GetNameFromPath(x.GetAttribute("value"))) ?? null;
 
         // Collect hardpoints
         EBP.Hardpoints = xmlDocument?.SelectSingleNode(@".//template_reference[@name='exts'] [@value='ebpextensions\combat_ext']")
-            ?.SelectNodes(@".//group[@name='weapon']")?.MapTo(x => 
-                ((x.SelectSingleNode(@".//instance_reference[@name='ebp']") as XmlElement)?.GetAttribute("value")) ?? string.Empty)
+            ?.SelectNodes(@".//group[@name='weapon']")?.MapTo(x =>
+                 pathHandler.GetNameFromPath(((x.SelectSingleNode(@".//instance_reference[@name='ebp']") as XmlElement)?.GetAttribute("value")) ?? string.Empty))
             .Where(x => !string.IsNullOrEmpty(x)).ToArray() ?? null;
 
         // Collect upgrades
         EBP.Upgrades = xmlDocument?.SelectSingleNode(@".//template_reference[@name='exts'] [@value='ebpextensions\upgrade_ext']")
-            ?.SelectNodes(@".//instance_reference[@name='upgrade']")?.MapTo(x => x.GetAttribute("value")) ?? null;
+            ?.SelectNodes(@".//instance_reference[@name='upgrade']")?.MapTo(x => pathHandler.GetNameFromPath(x.GetAttribute("value"))) ?? null;
 
         // Collect upgrade capacity
         EBP.UpgradeCapacity = int.Parse((xmlDocument?.SelectSingleNode(@".//template_reference[@name='exts'] [@value='ebpextensions\entity_inventory_ext']")
@@ -61,6 +65,14 @@ public sealed class CoH3EntityReader : IBlueprintReader<EntityBlueprint> {
         // Get hitpoints (if any)
         if (xmlDocument?.SelectSingleNode(@".//template_reference[@name='exts'] [@value='ebpextensions\health_ext']") is XmlElement health) {
             EBP.Health = float.Parse(health.GetValue(".//float[@name='hitpoints']"));
+        }
+
+        // Get if inventory item
+        if (xmlDocument?.SelectSingleNode(@".//template_reference[@name='exts'] [@value='ebpextensions\sim_inventory_item_ext']") is XmlElement inventoryItem) {
+            EBP.IsInventoryItem = true;
+            EBP.InventoryRequiredCapacity = int.Parse((inventoryItem.SelectSingleNode(@".//int[@name='capacity_required']") as XmlElement)?.GetAttribute("value") ?? "0");
+            EBP.InventoryDropOnDeathChance = float.Parse(
+                (inventoryItem.SelectSingleNode(@".//float[@name='drop_on_death_chance']") as XmlElement)?.GetAttribute("value") ?? "0", CultureInfo.InvariantCulture);
         }
 
         // Return entities

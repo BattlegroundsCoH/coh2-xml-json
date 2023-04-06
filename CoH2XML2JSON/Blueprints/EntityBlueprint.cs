@@ -150,4 +150,31 @@ public sealed class EntityBlueprint : BaseBlueprint<EntityBlueprint>, IBlueprint
         set => SetValue(value);
     }
 
+    /// <summary>
+    /// Defines if the entity is an inventory item
+    /// </summary>
+    [DefaultValue(false)]
+    public bool IsInventoryItem {
+        get => GetValue<bool>();
+        set => SetValue(value);
+    }
+
+    /// <summary>
+    /// The amount of invenctory space required to pickup with item
+    /// </summary>
+    [DefaultValue(0)]
+    public int InventoryRequiredCapacity {
+        get => GetValue<int>();
+        set => SetValue(value);
+    }
+
+    /// <summary>
+    /// The chance of this item dropping when the owning entity dies.
+    /// </summary>
+    [DefaultValue(0.0f)]
+    public float InventoryDropOnDeathChance {
+        get => GetValue<float>();
+        set => SetValue(value);
+    }
+
 }

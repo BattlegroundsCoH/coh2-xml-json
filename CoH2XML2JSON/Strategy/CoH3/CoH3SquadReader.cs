@@ -37,9 +37,9 @@ public sealed class CoH3SquadReader : IBlueprintReader<SquadBlueprint> {
             PBGID = ulong.Parse(xmlDocument["uniqueid"]?.GetAttribute("value") ?? "0"),
             Display = new UI(xmlDocument?.SelectSingleNode(@".//template_reference[@name='squadexts'] [@value='sbpextensions\squad_ui_ext']") as XmlElement),
             Abilities = xmlDocument?.SelectSingleNode(@".//template_reference[@name='squadexts'] [@value='sbpextensions\squad_ability_ext']")
-                ?.SelectNodes(@".//instance_reference[@name='ability']")?.MapTo(x => x.GetAttribute("value")) ?? null,
+                ?.SelectNodes(@".//instance_reference[@name='ability']")?.MapTo(x => pathHandler.GetNameFromPath(x.GetAttribute("value"))) ?? null,
             Upgrades = xmlDocument?.SelectSingleNode(@".//template_reference[@name='squadexts'] [@value='sbpextensions\squad_upgrade_ext']")
-                ?.SelectNodes(@".//instance_reference[@name='upgrade']")?.MapTo(x => x.GetAttribute("value")) ?? null,
+                ?.SelectNodes(@".//instance_reference[@name='upgrade']")?.MapTo(x => pathHandler.GetNameFromPath(x.GetAttribute("value"))) ?? null,
             Types = xmlDocument?.SelectSingleNode(@".//template_reference[@name='squadexts'] [@value='sbpextensions\squad_type_ext']")
                 ?.SelectNodes(@".//enum[@name='squad_type']")?.MapTo(x => x.GetAttribute("value")) ?? Array.Empty<string>(),
             IsSyncWeapon = (xmlDocument?.SelectSingleNode(@".//template_reference[@name='squadexts'] [@value='sbpextensions\squad_team_weapon_ext']") ?? null) is not null

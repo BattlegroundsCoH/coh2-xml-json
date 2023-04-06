@@ -13,22 +13,21 @@ public class CoH3EntityReaderTest {
     [NotNull]
     private IBlueprintReader<EntityBlueprint> entityReader;
 
-    [NotNull]
-    private XmlResource panzer3Xml;
-
     private Helpers entityHelpers;
 
     [SetUp]
     public void SetUp() {
         entityReader = new CoH3EntityReader();
-        panzer3Xml = new XmlResource("coh3/ebps/races/afrika_korps/panzer_iii_ak.xml");
-        entityHelpers = new Helpers(new[] { new VariantSelector("default") });
+        entityHelpers = new Helpers(new IBlueprintHelperHandler[] { new VariantSelector("default"), new ScarPathHandler() });
     }
 
     [Test]
     public void CanLoadPanzerIII() {
 
-        // Load it
+        // Load panzer 3 XML
+        XmlResource panzer3Xml = new XmlResource("coh3/ebps/races/afrika_korps/panzer_iii_ak.xml");
+
+        // Load it as blueprint
         EntityBlueprint? panzerIII = entityReader.FromXml(panzer3Xml.Document, string.Empty, "panzer_iii_ak", entityHelpers);
         Assert.That(panzerIII, Is.Not.Null);
 
@@ -51,6 +50,30 @@ public class CoH3EntityReaderTest {
             Assert.That(panzerIII.Types!.Contains("allow_turret_off"), Is.True);
 
             Assert.That(panzerIII.Health, Is.EqualTo(600.0f));
+
+            Assert.That(panzerIII.IsInventoryItem, Is.False);
+
+        });
+
+    }
+
+    [Test]
+    public void CanLoadEntityItem() {
+
+
+        // Load british Lee-enfield XML
+        XmlResource leenfieldXml = new XmlResource("coh3/ebps/races/british_africa/weapons/small_arms/single_fire/rifle/w_lee_enfield_tommy_africa_uk.xml");
+
+        // Load it as blueprint
+        EntityBlueprint? enfield = entityReader.FromXml(leenfieldXml.Document, string.Empty, "w_lee_enfield_tommy_africa_uk", entityHelpers);
+        Assert.That(enfield, Is.Not.Null);
+
+        // Check all
+        Assert.Multiple(() => {
+
+            Assert.That(enfield.IsInventoryItem, Is.True);
+            Assert.That(enfield.InventoryRequiredCapacity, Is.EqualTo(0));
+            Assert.That(enfield.InventoryDropOnDeathChance, Is.EqualTo(0.0f));
 
         });
 
