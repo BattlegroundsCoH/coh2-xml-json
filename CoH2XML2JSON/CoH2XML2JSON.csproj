@@ -6,6 +6,11 @@
     <PublishTrimmed>true</PublishTrimmed>
     <PublishSingleFile>true</PublishSingleFile>
     <Nullable>enable</Nullable>
+    <PackageId>BgXml2Json</PackageId>
+    <Title>Battlegrounds Xml to Json Converter</Title>
+    <Company>Battlegrounds Development Team</Company>
+    <Description>A XML converter that converts from XML to JSON</Description>
+    <RepositoryUrl>https://github.com/BattlegroundsCoH/coh2-xml-json</RepositoryUrl>
   </PropertyGroup>
 
 </Project>
