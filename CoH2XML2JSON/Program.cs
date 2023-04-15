@@ -6,6 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 
 using CoH2XML2JSON.Strategy;
 using CoH2XML2JSON.Strategy.Listeners;
+using System.Collections.Generic;
 
 namespace CoH2XML2JSON;
 
@@ -18,6 +19,30 @@ public class Program {
         DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault
     };
 
+    public const string DirPathArg = "--dir";
+    public const string InstancesArg = "--instances";
+    public const string ModGuidArg = "--guid";
+    public const string ModNameArg = "--mod";
+
+    public static Dictionary<string, string> ReadArguments(string[] args, params string[] keys) {
+        Dictionary<string, string> keyValuePairs = new Dictionary<string, string>();
+        for (int i = 0; i < keys.Length; i++) {
+            int idx = Array.IndexOf(args, keys[i]);
+            if (idx != -1 && idx + 1 < args.Length) {
+                keyValuePairs[keys[i]] = args[idx+1];
+            }
+        }
+        return keyValuePairs;
+    }
+
+    private static string FromArgOrInput(string arg, Dictionary<string, string> kvArgs) {
+        if (kvArgs.TryGetValue(arg, out string ?value)) {
+            Console.WriteLine(value);
+            return kvArgs[arg];
+        }
+        return Console.ReadLine()!;
+    }
+
     [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public static void Main(string[] args) {
 
@@ -26,15 +51,18 @@ public class Program {
         string modguid = string.Empty;
         string modname = string.Empty;
 
+        var kvArgs = ReadArguments(args, DirPathArg, InstancesArg, ModGuidArg, ModNameArg);
         bool doLastIgnoreInput = args.Contains("-do_last");
         bool isCoH3 = args.Contains("-coh3");
+        bool silent = args.Contains("-silent");
+        bool ignoreLast = args.Contains("-skip_last");
 
         Console.WriteLine(string.Join(" ", args));
 
         Goal? last = null;
-        if (File.Exists("last.json")) {
+        if (File.Exists("last.json") && !ignoreLast) {
             last = JsonSerializer.Deserialize<Goal>(File.ReadAllText("last.json"));
-            if (last is not null) {
+            if (last is not null && !silent) {
                 Console.WriteLine("Use settings from last execution?");
                 Console.WriteLine("Output Directory: " + last.OutPath);
                 Console.WriteLine("Instance Directory: " + last.InstancePath);
@@ -61,7 +89,7 @@ public class Program {
 
         if (last is null) {
             Console.Write("Set path where you want the files to be created to: ");
-            dirPath = Console.ReadLine()!;
+            dirPath = FromArgOrInput(DirPathArg, kvArgs);
 
             while (!Directory.Exists(dirPath)) {
                 if (string.IsNullOrEmpty(dirPath)) { // Because I'm lazy - this is a quick method to simply use the directory of the .exe
@@ -69,26 +97,34 @@ public class Program {
                     dirPath = Environment.CurrentDirectory;
                     break;
                 }
+                if (kvArgs.ContainsKey(DirPathArg)) {
+                    Console.Error.WriteLine("Output Directory not found");
+                    return;
+                }
                 Console.Write("Invalid path! Try again: ");
                 dirPath = Console.ReadLine()!;
             }
 
             Console.Write("Set path to your \"instances\" folder: ");
-            instancesPath = Console.ReadLine()!;
+            instancesPath = FromArgOrInput(InstancesArg, kvArgs);
 
             while (!Directory.Exists(instancesPath) && !instancesPath.EndsWith(@"\instances")) {
+                if (kvArgs.ContainsKey(InstancesArg)) {
+                    Console.Error.WriteLine("Instances Directory not found");
+                    return;
+                }
                 Console.Write("Invalid path! Try again: ");
                 instancesPath = Console.ReadLine()!;
             }
 
             Console.Write("Mod GUID (Leave empty if not desired/available):");
-            modguid = Console.ReadLine()!.Replace("-", "");
+            modguid = FromArgOrInput(ModGuidArg, kvArgs).Replace("-", "");
             if (modguid.Length != 32) {
                 modguid = string.Empty;
             }
 
             Console.Write("Mod Name (Leave empty for vanilla):");
-            modname = Console.ReadLine()!;
+            modname = FromArgOrInput(ModNameArg, kvArgs);
             if (string.IsNullOrEmpty(modname)) {
                 modname = "vcoh";
             }
@@ -103,7 +139,7 @@ public class Program {
 
         Console.WriteLine();
 
-        if (!doLastIgnoreInput) {
+        if (!doLastIgnoreInput && !silent) {
             Console.WriteLine("Created databases - Press any key to exit");
             Console.Read();
         }

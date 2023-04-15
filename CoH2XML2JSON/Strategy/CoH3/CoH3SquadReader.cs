@@ -67,7 +67,7 @@ public sealed class CoH3SquadReader : IBlueprintReader<SquadBlueprint> {
         SBP.Veterancy = xmlDocument!.SelectSingleNode(@"//template_reference [@name='squadexts'] [@value='sbpextensions\squad_veterancy_ext']")
             ?.SelectNodes(@"//group [@name='veterancy_rank']")?.MapTo(x => {
                 string name = (x.SelectSingleNode(@".//locstring [@name='screen_name']") as XmlElement)?.GetAttribute("value") ?? string.Empty;
-                float experience = float.Parse((x.SelectSingleNode(@".//float [@name='veterancy_value']") as XmlElement)?.GetAttribute("value") ?? string.Empty, CultureInfo.InvariantCulture);
+                float experience = float.Parse((x.SelectSingleNode(@".//float [@name='veterancy_value']") as XmlElement)?.GetAttribute("value") ?? "0", CultureInfo.InvariantCulture);
                 return new SquadBlueprint.VeterancyLevel(name, experience);
             }) ?? Array.Empty<SquadBlueprint.VeterancyLevel>();
 

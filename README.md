@@ -28,6 +28,12 @@ The tool is very simple and will prompt the user for basic information of what t
 
 If the file `last.json` exists and the application is started with the '-do_last' parameter, the application will automatically run using the settings specified in `last.json` without any user prompt.
 
+Alternatively, the application can be launched in silent mode, passing in the input through arguments. For example
+
+```
+CoH2XML2JSON.exe --dir "Output" --instances "..\battlegrounds-tuning\instances" --guid "142b1137-4047-4c82-a60b-0a428bd553d5" --mod "mod_bg" -silent -skip_last
+```
+
 The application can be set to target `Company of Heroes 3` by adding the `-coh3` parameter flag.
 
 ### Company of Heroes 3
