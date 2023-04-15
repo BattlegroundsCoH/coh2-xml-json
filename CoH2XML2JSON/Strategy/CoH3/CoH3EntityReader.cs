@@ -76,14 +76,6 @@ public sealed class CoH3EntityReader : IBlueprintReader<EntityBlueprint> {
                 (inventoryItem.SelectSingleNode(@".//float[@name='drop_on_death_chance']") as XmlElement)?.GetAttribute("value") ?? "0", CultureInfo.InvariantCulture);
         }
 
-        // Get if inventory item
-        if (xmlDocument?.SelectSingleNode(@".//template_reference[@name='exts'] [@value='ebpextensions\sim_inventory_item_ext']") is XmlElement inventoryItem) {
-            EBP.IsInventoryItem = true;
-            EBP.InventoryRequiredCapacity = int.Parse((inventoryItem.SelectSingleNode(@".//int[@name='capacity_required']") as XmlElement)?.GetAttribute("value") ?? "0");
-            EBP.InventoryDropOnDeathChance = float.Parse(
-                (inventoryItem.SelectSingleNode(@".//float[@name='drop_on_death_chance']") as XmlElement)?.GetAttribute("value") ?? "0", CultureInfo.InvariantCulture);
-        }
-
         // Return entities
         return EBP;
 
