@@ -35,7 +35,7 @@ public sealed class CoH3SquadReader : IBlueprintReader<SquadBlueprint> {
             Name = filename,
             ModGUID = string.IsNullOrEmpty(modGuid) ? null : modGuid,
             PBGID = ulong.Parse(xmlDocument["uniqueid"]?.GetAttribute("value") ?? "0"),
-            Display = new UI(xmlDocument?.SelectSingleNode(@".//template_reference[@name='squadexts'] [@value='sbpextensions\squad_ui_ext']") as XmlElement),
+            Display = new UICoH3(xmlDocument?.SelectSingleNode(@".//template_reference[@name='squadexts'] [@value='sbpextensions\squad_ui_ext']") as XmlElement),
             Abilities = xmlDocument?.SelectSingleNode(@".//template_reference[@name='squadexts'] [@value='sbpextensions\squad_ability_ext']")
                 ?.SelectNodes(@".//instance_reference[@name='ability']")?.MapTo(x => pathHandler.GetNameFromPath(x.GetAttribute("value"))) ?? null,
             Upgrades = xmlDocument?.SelectSingleNode(@".//template_reference[@name='squadexts'] [@value='sbpextensions\squad_upgrade_ext']")

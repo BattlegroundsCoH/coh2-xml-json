@@ -25,7 +25,7 @@ public sealed class CoH2SquadReader : IBlueprintReader<SquadBlueprint> {
             Name = filename,
             ModGUID = string.IsNullOrEmpty(modGuid) ? null : modGuid,
             PBGID = ulong.Parse(xmlDocument["instance"]["uniqueid"].GetAttribute("value")),
-            Display = new(xmlDocument.SelectSingleNode(@".//template_reference[@name='squadexts'] [@value='sbpextensions\squad_ui_ext']") as XmlElement)
+            Display = new UI(xmlDocument.SelectSingleNode(@".//template_reference[@name='squadexts'] [@value='sbpextensions\squad_ui_ext']") as XmlElement)
         };
 
         // Load squad types

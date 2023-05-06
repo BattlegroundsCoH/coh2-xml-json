@@ -7,7 +7,7 @@ namespace CoH2XML2JSON.Blueprints.DataEntry;
 /// <summary>
 /// UI class represents a user interface element. It contains information such as the name, description, icon, symbol, portrait and position of the UI element.
 /// </summary>
-public sealed class UI : Extendable<UI> {
+public class UI : Extendable<UI>, IUI {
 
     /// <summary>
     /// Gets the localized name of the UI element.

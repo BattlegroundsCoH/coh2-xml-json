@@ -40,8 +40,8 @@ public sealed class SquadBlueprint : BaseBlueprint<SquadBlueprint>, IBlueprintOf
     /// <summary>
     /// Gets or sets the UI display information for the squad.
     /// </summary>
-    public UI? Display {
-        get => GetValue<UI>();
+    public IUI? Display {
+        get => GetValue<IUI>();
         set => SetValue(value);
     }
 
